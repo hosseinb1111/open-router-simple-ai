@@ -2,1578 +2,945 @@
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Free AI</title>
-
-  <meta
-    name="description"
-    content="Free AI chat powered by OpenRouter."
-  >
-
-  <meta
-    name="theme-color"
-    content="#2b2d31"
-  >
-
-  <link
-    rel="icon"
-    href="favicon.ico"
-    type="image/x-icon"
-  >
+  <meta name="description" content="Free AI chat powered by OpenRouter.">
+  <meta name="theme-color" content="#17181b">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.11/dist/purify.min.js"></script>
 
   <style>
+    /* =====================================================
+       DESIGN TOKENS
+    ===================================================== */
     :root {
-      --bg: #313338;
-      --sidebar: #2b2d31;
-      --sidebar-hover: #35373c;
+      /* dark (default) */
+      --bg: #1a1b1e;
+      --sidebar: #17181b;
+      --sidebar-hover: #212226;
+      --surface: #1a1b1e;
+      --surface-hover: #232427;
+      --input: #202124;
+      --elevated: #1f2023;
 
-      --surface: #313338;
-      --surface-hover: #3a3c43;
-      --input: #383a40;
+      --text: #e9e9ec;
+      --text-secondary: #a3a3ab;
+      --text-muted: #6c6d74;
 
-      --text: #f2f3f5;
-      --text-secondary: #b5bac1;
-      --text-muted: #949ba4;
+      --border: rgba(255, 255, 255, 0.07);
+      --border-strong: rgba(255, 255, 255, 0.13);
 
-      --border: rgba(255, 255, 255, 0.06);
-      --border-strong: rgba(255, 255, 255, 0.10);
+      --accent: #6c8eff;
+      --accent-hover: #5a7cf0;
+      --accent-soft: rgba(108, 142, 255, 0.14);
+      --accent-text: #a9bcff;
 
-      --accent: #5865f2;
-      --accent-hover: #4752c4;
+      --success: #4caf7d;
+      --danger: #e5534b;
+      --danger-soft: rgba(229, 83, 75, 0.13);
+      --warning: #d9a441;
 
-      --success: #23a559;
-      --danger: #ed4245;
-      --warning: #faa61a;
-      --info: #00a8fc;
+      --user-message: #2a2c31;
+      --code-bg: #131417;
+      --code-header: #17181b;
 
-      --user-message: #404249;
+      --radius-sm: 5px;
+      --radius-md: 8px;
+      --radius-lg: 11px;
 
-      --code-bg: #1e1f22;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.28);
+
+      --ease: cubic-bezier(0.2, 0, 0, 1);
+      --fast: 0.12s;
+      --normal: 0.18s;
+
+      --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: "SFMono-Regular", ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
     }
 
     [data-theme="light"] {
-      --bg: #ffffff;
-      --sidebar: #f2f3f5;
-      --sidebar-hover: #e3e5e8;
+      --bg: #fbfbfa;
+      --sidebar: #f3f3f2;
+      --sidebar-hover: #e9e9e7;
+      --surface: #fbfbfa;
+      --surface-hover: #eeeeec;
+      --input: #f0f0ee;
+      --elevated: #ffffff;
 
-      --surface: #ffffff;
-      --surface-hover: #e9eaec;
-      --input: #ebedef;
-
-      --text: #1e1f22;
-      --text-secondary: #4f545c;
-      --text-muted: #747f8d;
+      --text: #1c1c1f;
+      --text-secondary: #5c5c63;
+      --text-muted: #8a8a90;
 
       --border: rgba(0, 0, 0, 0.08);
-      --border-strong: rgba(0, 0, 0, 0.13);
+      --border-strong: rgba(0, 0, 0, 0.14);
 
-      --user-message: #e3e5e8;
+      --accent: #4b6fe0;
+      --accent-hover: #3d5dc9;
+      --accent-soft: rgba(75, 111, 224, 0.10);
+      --accent-text: #3d5dc9;
 
-      --code-bg: #1e1f22;
+      --success: #2f8f5e;
+      --danger: #d33b33;
+      --danger-soft: rgba(211, 59, 51, 0.09);
+      --warning: #b3791f;
+
+      --user-message: #eceef2;
+      --code-bg: #f4f4f3;
+      --code-header: #ebebe9;
+
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+      --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.08);
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+      }
     }
 
-    html,
-    body {
-      width: 100%;
-      height: 100%;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; }
 
     body {
       overflow: hidden;
-
-      font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        Roboto,
-        Helvetica,
-        Arial,
-        sans-serif;
-
+      font-family: var(--font-ui);
       background: var(--bg);
       color: var(--text);
+      -webkit-font-smoothing: antialiased;
     }
 
-    button,
-    textarea,
-    input {
-      font: inherit;
-    }
+    button, textarea, input { font: inherit; color: inherit; }
+    button { border: 0; background: none; }
+    ::selection { background: var(--accent-soft); }
 
-    button {
-      border: 0;
-    }
-
-    ::selection {
-      background: rgba(88, 101, 242, 0.45);
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+      border-radius: var(--radius-sm);
     }
 
     /* =====================================================
-       APP
+       APP SHELL
     ===================================================== */
-
-    .app {
-      width: 100%;
-      height: 100vh;
-
-      display: flex;
-
-      background: var(--bg);
-    }
+    .app { width: 100%; height: 100vh; display: flex; background: var(--bg); }
 
     /* =====================================================
        SIDEBAR
     ===================================================== */
-
     .sidebar {
-      width: 270px;
+      width: 264px;
       flex-shrink: 0;
-
       display: flex;
       flex-direction: column;
-
       background: var(--sidebar);
-
-      border-right:
-        1px solid var(--border);
+      border-right: 1px solid var(--border);
     }
 
     .sidebar-header {
-      height: 58px;
       flex-shrink: 0;
-
       display: flex;
       align-items: center;
       justify-content: space-between;
-
-      padding: 0 12px;
-
-      border-bottom:
-        1px solid var(--border);
+      padding: 14px 12px 10px;
     }
 
     .brand {
-      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13.5px;
+      font-weight: 650;
+      letter-spacing: -0.1px;
+    }
+
+    .brand-mark {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      background: var(--accent);
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 11px;
       font-weight: 700;
+      flex-shrink: 0;
     }
 
     .new-chat-btn {
-      width: 34px;
-      height: 34px;
-
+      width: 30px;
+      height: 30px;
       display: grid;
       place-items: center;
-
-      border-radius: 6px;
-
-      background:
-        var(--accent);
-
-      color: white;
-
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--text-secondary);
       cursor: pointer;
-
-      transition:
-        background 0.15s ease;
+      transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
     }
+    .new-chat-btn:hover { background: var(--sidebar-hover); color: var(--text); }
+    .new-chat-btn svg { width: 17px; height: 17px; }
 
-    .new-chat-btn:hover {
-      background:
-        var(--accent-hover);
+    .sidebar-search {
+      flex-shrink: 0;
+      margin: 2px 12px 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 9px;
+      border-radius: var(--radius-sm);
+      background: var(--input);
+      border: 1px solid transparent;
+      transition: border-color var(--fast) var(--ease);
     }
-
-    .new-chat-btn svg {
-      width: 18px;
-      height: 18px;
+    .sidebar-search:focus-within { border-color: var(--border-strong); }
+    .sidebar-search svg {
+      width: 14px; height: 14px; flex-shrink: 0; color: var(--text-muted);
     }
+    .sidebar-search input {
+      flex: 1;
+      min-width: 0;
+      background: transparent;
+      border: 0;
+      outline: 0;
+      font-size: 12.5px;
+      color: var(--text);
+    }
+    .sidebar-search input::placeholder { color: var(--text-muted); }
 
     .chats-list {
       flex: 1;
-
       overflow-y: auto;
-
-      padding: 8px;
+      padding: 2px 8px 8px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-strong) transparent;
     }
+    .chats-list::-webkit-scrollbar { width: 6px; }
+    .chats-list::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 999px; }
+
+    .chat-group-label {
+      padding: 12px 9px 5px;
+      font-size: 10.5px;
+      font-weight: 650;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .chat-group-label:first-child { padding-top: 6px; }
 
     .chat-item {
+      position: relative;
       width: 100%;
-
       display: flex;
       align-items: center;
-
       gap: 5px;
-
-      padding: 7px 7px 7px 10px;
-
-      margin-bottom: 2px;
-
-      border-radius: 6px;
-
-      background:
-        transparent;
-
-      color:
-        var(--text-secondary);
-
-      cursor:
-        pointer;
-
-      transition:
-        background 0.12s ease,
-        color 0.12s ease;
+      padding: 7px 6px 7px 11px;
+      margin-bottom: 1px;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
     }
-
-    .chat-item:hover {
-      background:
-        var(--sidebar-hover);
-
-      color:
-        var(--text);
-    }
-
+    .chat-item:hover { background: var(--sidebar-hover); color: var(--text); }
     .chat-item.active {
-      background:
-        var(--surface-hover);
-
-      color:
-        var(--text);
+      background: var(--accent-soft);
+      color: var(--text);
+    }
+    .chat-item.active::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 20%; bottom: 20%;
+      width: 2px;
+      border-radius: 2px;
+      background: var(--accent);
     }
 
     .chat-item-title {
       min-width: 0;
       flex: 1;
-
       overflow: hidden;
-
       white-space: nowrap;
       text-overflow: ellipsis;
-
-      font-size: 12px;
+      font-size: 12.5px;
+      line-height: 1.4;
     }
 
     .chat-item-actions {
       display: flex;
       align-items: center;
-
       gap: 1px;
-
       opacity: 0;
-
-      transition:
-        opacity 0.12s ease;
+      transition: opacity var(--fast) var(--ease);
     }
-
     .chat-item:hover .chat-item-actions,
-    .chat-item.active .chat-item-actions {
-      opacity: 1;
-    }
+    .chat-item.active .chat-item-actions { opacity: 1; }
 
     .chat-item-action {
-      width: 24px;
-      height: 24px;
-
+      width: 23px;
+      height: 23px;
       display: grid;
       place-items: center;
-
       border-radius: 5px;
-
-      background:
-        transparent;
-
-      color:
-        var(--text-muted);
-
-      cursor:
-        pointer;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
     }
+    .chat-item-action:hover { background: var(--surface-hover); color: var(--text); }
+    .chat-item-action.delete:hover { background: var(--danger-soft); color: var(--danger); }
+    .chat-item-action svg { width: 12.5px; height: 12.5px; }
 
-    .chat-item-action:hover {
-      background:
-        var(--surface-hover);
-
-      color:
-        var(--text);
-    }
-
-    .chat-item-action.delete:hover {
-      background:
-        rgba(237, 66, 69, 0.12);
-
-      color:
-        var(--danger);
+    .chats-empty {
+      padding: 18px 9px;
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1.5;
     }
 
     /* =====================================================
        USER PANEL
     ===================================================== */
+    .user-panel { flex-shrink: 0; padding: 9px; border-top: 1px solid var(--border); }
 
-    .user-panel {
-      flex-shrink: 0;
-
-      padding: 10px;
-
-      border-top:
-        1px solid var(--border);
-    }
-
-    .user-info {
-      display: flex;
-      align-items: center;
-
-      gap: 9px;
-
-      padding: 5px;
-    }
+    .user-info { display: flex; align-items: center; gap: 9px; padding: 6px 5px; border-radius: var(--radius-sm); }
 
     .avatar {
-      width: 34px;
-      height: 34px;
-
-      flex-shrink: 0;
-
+      width: 30px; height: 30px; flex-shrink: 0;
       border-radius: 50%;
-
       object-fit: cover;
-
-      background:
-        var(--surface-hover);
+      background: var(--surface-hover);
+      border: 1px solid var(--border);
     }
 
-    .user-details {
-      min-width: 0;
-      flex: 1;
-    }
-
-    .user-name,
-    .user-email {
-      overflow:
-        hidden;
-
-      white-space:
-        nowrap;
-
-      text-overflow:
-        ellipsis;
-    }
-
-    .user-name {
-      font-size:
-        12px;
-
-      font-weight:
-        600;
-    }
-
-    .user-email {
-      margin-top:
-        2px;
-
-      color:
-        var(--text-muted);
-
-      font-size:
-        10px;
-    }
+    .user-details { min-width: 0; flex: 1; }
+    .user-name, .user-email { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .user-name { font-size: 12px; font-weight: 600; }
+    .user-email { margin-top: 1px; color: var(--text-muted); font-size: 10.5px; }
 
     .signout-btn {
       width: 100%;
-
-      margin-top:
-        4px;
-
-      padding:
-        8px;
-
-      border-radius:
-        6px;
-
-      background:
-        transparent;
-
-      color:
-        var(--text-muted);
-
-      text-align:
-        left;
-
-      font-size:
-        11px;
-
-      cursor:
-        pointer;
+      margin-top: 3px;
+      padding: 7px 7px;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-align: left;
+      font-size: 11.5px;
+      cursor: pointer;
+      transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
     }
-
-    .signout-btn:hover {
-      background:
-        rgba(237, 66, 69, 0.10);
-
-      color:
-        var(--danger);
-    }
+    .signout-btn:hover { background: var(--danger-soft); color: var(--danger); }
+    .signout-btn svg { width: 13px; height: 13px; }
 
     /* =====================================================
        MAIN CHAT
     ===================================================== */
-
-    .chat {
-      min-width:
-        0;
-
-      flex:
-        1;
-
-      display:
-        flex;
-
-      flex-direction:
-        column;
-
-      background:
-        var(--surface);
-    }
+    .chat { min-width: 0; flex: 1; display: flex; flex-direction: column; background: var(--surface); }
 
     .chat-header {
-      height:
-        58px;
-
-      flex-shrink:
-        0;
-
-      display:
-        flex;
-
-      align-items:
-        center;
-
-      justify-content:
-        space-between;
-
-      padding:
-        0 12px;
-
-      border-bottom:
-        1px solid var(--border);
+      height: 52px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      border-bottom: 1px solid var(--border);
     }
 
-    /* =====================================================
-       CURRENT CHAT TAB
-    ===================================================== */
-
     .current-tab {
-      max-width:
-        min(70%, 700px);
-
-      display:
-        flex;
-
-      align-items:
-        center;
-
-      gap:
-        4px;
-
-      min-width:
-        0;
-
-      padding:
-        3px 4px 3px 9px;
-
-      border-radius:
-        6px;
-
-      background:
-        var(--surface-hover);
-
-      border:
-        1px solid var(--border);
+      max-width: min(70%, 640px);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      min-width: 0;
+      padding: 3px 4px 3px 10px;
+      border-radius: var(--radius-sm);
     }
 
     .current-tab-title {
-      min-width:
-        0;
-
-      overflow:
-        hidden;
-
-      white-space:
-        nowrap;
-
-      text-overflow:
-        ellipsis;
-
-      font-size:
-        12px;
-
-      font-weight:
-        600;
+      min-width: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      font-size: 12.5px;
+      font-weight: 600;
     }
 
     .current-tab-model {
-      margin-left:
-        7px;
-
-      color:
-        var(--text-muted);
-
-      font-size:
-        9px;
+      margin-left: 8px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: var(--input);
+      color: var(--text-muted);
+      font-size: 9.5px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
     }
+
+    .current-tab-search {
+      margin-left: 5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent-text);
+      font-size: 9.5px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .current-tab-search svg { width: 9px; height: 9px; }
 
     .close-tab-btn {
-      width:
-        27px;
-
-      height:
-        27px;
-
-      flex-shrink:
-        0;
-
-      display:
-        grid;
-
-      place-items:
-        center;
-
-      border-radius:
-        5px;
-
-      background:
-        transparent;
-
-      color:
-        var(--text-muted);
-
-      cursor:
-        pointer;
+      width: 25px; height: 25px; flex-shrink: 0;
+      display: grid; place-items: center;
+      border-radius: 5px;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
     }
+    .close-tab-btn:hover { background: var(--danger-soft); color: var(--danger); }
+    .close-tab-btn svg { width: 13px; height: 13px; }
 
-    .close-tab-btn:hover {
-      background:
-        rgba(237, 66, 69, 0.12);
-
-      color:
-        var(--danger);
-    }
-
-    .header-actions {
-      display:
-        flex;
-
-      align-items:
-        center;
-
-      gap:
-        4px;
-    }
+    .header-actions { display: flex; align-items: center; gap: 3px; }
 
     .icon-btn {
-      width:
-        34px;
-
-      height:
-        34px;
-
-      display:
-        grid;
-
-      place-items:
-        center;
-
-      border-radius:
-        6px;
-
-      background:
-        transparent;
-
-      color:
-        var(--text-secondary);
-
-      cursor:
-        pointer;
+      width: 32px; height: 32px;
+      display: grid; place-items: center;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
     }
-
-    .icon-btn:hover {
-      background:
-        var(--surface-hover);
-
-      color:
-        var(--text);
-    }
-
-    .icon-btn svg {
-      width:
-        18px;
-
-      height:
-        18px;
-    }
+    .icon-btn:hover { background: var(--surface-hover); color: var(--text); }
+    .icon-btn svg { width: 17px; height: 17px; }
 
     /* =====================================================
        MESSAGES
     ===================================================== */
-
     .messages {
-      flex:
-        1;
-
-      min-height:
-        0;
-
-      overflow-y:
-        auto;
-
-      padding:
-        24px 0 32px;
-
-      scrollbar-width:
-        thin;
-
-      scrollbar-color:
-        var(--border-strong)
-        transparent;
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 20px 0 28px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-strong) transparent;
     }
-
-    .messages::-webkit-scrollbar {
-      width:
-        8px;
-    }
-
-    .messages::-webkit-scrollbar-track {
-      background:
-        transparent;
-    }
-
-    .messages::-webkit-scrollbar-thumb {
-      background:
-        var(--border-strong);
-
-      border-radius:
-        999px;
-    }
+    .messages::-webkit-scrollbar { width: 8px; }
+    .messages::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 999px; }
 
     .empty-state {
-      max-width:
-        650px;
-
-      margin:
-        100px auto 0;
-
-      padding:
-        0 20px;
-
-      text-align:
-        center;
+      max-width: 560px;
+      margin: 9vh auto 0;
+      padding: 0 20px;
     }
 
     .empty-state h1 {
-      margin-bottom:
-        10px;
-
-      font-size:
-        30px;
-
-      letter-spacing:
-        -0.5px;
+      font-size: 21px;
+      font-weight: 650;
+      letter-spacing: -0.3px;
+      margin-bottom: 6px;
     }
 
     .empty-state p {
-      color:
-        var(--text-secondary);
-
-      font-size:
-        14px;
-
-      line-height:
-        1.6;
+      color: var(--text-secondary);
+      font-size: 13.5px;
+      line-height: 1.6;
+      margin-bottom: 22px;
     }
+
+    .suggestion-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .suggestion-chip {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      text-align: left;
+      padding: 11px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--elevated);
+      color: var(--text-secondary);
+      font-size: 12.5px;
+      line-height: 1.4;
+      cursor: pointer;
+      transition: border-color var(--fast) var(--ease), background var(--fast) var(--ease), color var(--fast) var(--ease);
+    }
+    .suggestion-chip:hover {
+      border-color: var(--border-strong);
+      background: var(--surface-hover);
+      color: var(--text);
+    }
+    .suggestion-chip svg { width: 14px; height: 14px; flex-shrink: 0; margin-top: 1px; color: var(--text-muted); }
 
     .message-row {
-      position:
-        relative;
-
-      width:
-        100%;
-
-      padding:
-        10px 24px;
-
-      animation:
-        messageIn 0.18s ease;
+      position: relative;
+      width: 100%;
+      padding: 3px 24px;
+      animation: messageIn var(--normal) var(--ease);
     }
 
-    .message-row:hover {
-      background:
-        rgba(0, 0, 0, 0.05);
-    }
+    .message-container { max-width: 780px; margin: 0 auto; padding: 7px 0; }
 
-    [data-theme="dark"]
-    .message-row:hover {
-      background:
-        rgba(0, 0, 0, 0.08);
-    }
+    .message { min-width: 0; }
 
-    .message-container {
-      max-width:
-        860px;
-
-      margin:
-        0 auto;
-    }
-
-    .message {
-      min-width:
-        0;
-    }
+    .message.user { display: flex; justify-content: flex-end; }
 
     .message.user .message-content {
-      width:
-        fit-content;
-
-      max-width:
-        82%;
-
-      margin-left:
-        auto;
-
-      padding:
-        10px 14px;
-
-      border-radius:
-        9px 9px 2px 9px;
-
-      background:
-        var(--user-message);
-
-      color:
-        var(--text);
-
-      white-space:
-        pre-wrap;
-
-      line-height:
-        1.5;
+      width: fit-content;
+      max-width: 80%;
+      padding: 9px 13px;
+      border-radius: var(--radius-md) var(--radius-md) 3px var(--radius-md);
+      background: var(--user-message);
+      color: var(--text);
+      white-space: pre-wrap;
+      line-height: 1.55;
+      font-size: 14px;
     }
 
     .message.ai .message-content {
-      font-size:
-        14px;
-
-      line-height:
-        1.68;
-
-      word-break:
-        break-word;
+      font-size: 14px;
+      line-height: 1.7;
+      word-break: break-word;
     }
 
-    /* =====================================================
-       MESSAGE TOOLBAR
-    ===================================================== */
+    .role-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+      font-size: 11px;
+      font-weight: 650;
+      color: var(--text-muted);
+    }
+    .role-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .message.user .message-toolbar { justify-content: flex-end; }
 
     .message-toolbar {
-      display:
-        flex;
-
-      align-items:
-        center;
-
-      gap:
-        3px;
-
-      margin-top:
-        6px;
-
-      opacity:
-        0;
-
-      transition:
-        opacity 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      margin-top: 5px;
+      opacity: 0;
+      transition: opacity var(--fast) var(--ease);
     }
-
-    .message-row:hover
-    .message-toolbar {
-      opacity:
-        1;
-    }
+    .message-row:hover .message-toolbar,
+    .message-row:focus-within .message-toolbar { opacity: 1; }
 
     .message-action {
-      display:
-        inline-flex;
-
-      align-items:
-        center;
-
-      gap:
-        4px;
-
-      min-height:
-        27px;
-
-      padding:
-        4px 7px;
-
-      border-radius:
-        5px;
-
-      background:
-        transparent;
-
-      color:
-        var(--text-muted);
-
-      cursor:
-        pointer;
-
-      font-size:
-        10px;
-
-      transition:
-        background 0.12s ease,
-        color 0.12s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      min-height: 25px;
+      padding: 4px 6px;
+      border-radius: 5px;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 10.5px;
+      transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
     }
-
-    .message-action:hover {
-      background:
-        var(--surface-hover);
-
-      color:
-        var(--text);
-    }
-
-    .message-action.delete:hover {
-      background:
-        rgba(237, 66, 69, 0.12);
-
-      color:
-        var(--danger);
-    }
-
-    .message-action.retry:hover {
-      background:
-        rgba(250, 166, 26, 0.10);
-
-      color:
-        var(--warning);
-    }
-
-    .message-action svg {
-      width:
-        13px;
-
-      height:
-        13px;
-    }
+    .message-action:hover { background: var(--surface-hover); color: var(--text); }
+    .message-action.delete:hover { background: var(--danger-soft); color: var(--danger); }
+    .message-action.retry:hover { background: rgba(217, 164, 65, 0.13); color: var(--warning); }
+    .message-action svg { width: 12.5px; height: 12.5px; }
 
     /* =====================================================
-       MARKDOWN
+       MARKDOWN CONTENT
     ===================================================== */
+    .message-content p { margin-bottom: 12px; }
+    .message-content p:last-child { margin-bottom: 0; }
 
-    .message-content p {
-      margin-bottom:
-        12px;
+    .message-content h1, .message-content h2, .message-content h3, .message-content h4 {
+      margin: 20px 0 8px;
+      line-height: 1.35;
+      font-weight: 650;
+      letter-spacing: -0.2px;
     }
+    .message-content h1:first-child, .message-content h2:first-child, .message-content h3:first-child { margin-top: 2px; }
+    .message-content h1 { font-size: 21px; }
+    .message-content h2 { font-size: 18px; }
+    .message-content h3 { font-size: 15.5px; }
 
-    .message-content p:last-child {
-      margin-bottom:
-        0;
-    }
+    .message-content ul, .message-content ol { margin: 8px 0 14px; padding-left: 21px; }
+    .message-content li { margin: 4px 0; }
+    .message-content li > p { margin-bottom: 4px; }
 
-    .message-content h1,
-    .message-content h2,
-    .message-content h3,
-    .message-content h4 {
-      margin:
-        20px 0 9px;
-
-      line-height:
-        1.35;
-    }
-
-    .message-content h1 {
-      font-size:
-        23px;
-    }
-
-    .message-content h2 {
-      font-size:
-        19px;
-    }
-
-    .message-content h3 {
-      font-size:
-        16px;
-    }
-
-    .message-content ul,
-    .message-content ol {
-      margin:
-        9px 0 14px;
-
-      padding-left:
-        22px;
-    }
-
-    .message-content li {
-      margin:
-        5px 0;
+    .message-content hr {
+      margin: 18px 0;
+      border: 0;
+      border-top: 1px solid var(--border);
     }
 
     .message-content blockquote {
-      margin:
-        14px 0;
-
-      padding:
-        9px 13px;
-
-      border-left:
-        3px solid var(--accent);
-
-      background:
-        rgba(88, 101, 242, 0.08);
-
-      color:
-        var(--text-secondary);
+      margin: 12px 0;
+      padding: 8px 13px;
+      border-left: 3px solid var(--accent);
+      background: var(--accent-soft);
+      color: var(--text-secondary);
+      border-radius: 0 5px 5px 0;
     }
+    .message-content blockquote p:last-child { margin-bottom: 0; }
 
-    .message-content a {
-      color:
-        #8ea1ff;
+    .message-content a { color: var(--accent-text); text-decoration: underline; text-underline-offset: 2px; }
+    .message-content a:hover { text-decoration-thickness: 2px; }
 
-      text-decoration:
-        underline;
+    .message-content table {
+      margin: 14px 0;
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
     }
+    .message-content th, .message-content td {
+      padding: 7px 10px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    .message-content th {
+      background: var(--elevated);
+      font-weight: 650;
+      font-size: 11.5px;
+      color: var(--text-secondary);
+    }
+    .message-content tr:last-child td { border-bottom: 0; }
 
     .message-content code:not(pre code) {
-      padding:
-        2px 5px;
-
-      border-radius:
-        4px;
-
-      background:
-        rgba(88, 101, 242, 0.12);
-
-      color:
-        #d7d9ff;
-
-      font-family:
-        "SFMono-Regular",
-        Consolas,
-        monospace;
-
-      font-size:
-        0.88em;
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: var(--accent-soft);
+      color: var(--accent-text);
+      font-family: var(--font-mono);
+      font-size: 0.87em;
     }
 
     /* =====================================================
-       CODE
+       CODE BLOCKS
     ===================================================== */
-
     .code-wrapper {
-      margin:
-        14px 0;
-
-      overflow:
-        hidden;
-
-      border:
-        1px solid var(--border);
-
-      border-radius:
-        7px;
-
-      background:
-        var(--code-bg);
+      margin: 14px 0;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--code-bg);
     }
 
     .code-header {
-      min-height:
-        33px;
-
-      display:
-        flex;
-
-      align-items:
-        center;
-
-      justify-content:
-        space-between;
-
-      padding:
-        0 10px;
-
-      background:
-        #1e1f22;
-
-      color:
-        #949ba4;
-
-      font-family:
-        monospace;
-
-      font-size:
-        10px;
+      min-height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      background: var(--code-header);
+      border-bottom: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      letter-spacing: 0.2px;
     }
 
     .code-copy {
-      padding:
-        4px 7px;
-
-      border-radius:
-        4px;
-
-      background:
-        rgba(255, 255, 255, 0.06);
-
-      color:
-        #b5bac1;
-
-      cursor:
-        pointer;
-
-      font-size:
-        10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 7px;
+      border-radius: 4px;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 10.5px;
+      transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
     }
-
-    .code-copy:hover {
-      background:
-        rgba(255, 255, 255, 0.12);
-
-      color:
-        white;
-    }
+    .code-copy:hover { background: var(--surface-hover); color: var(--text); }
 
     .message-content pre {
-      margin:
-        0;
-
-      padding:
-        14px;
-
-      overflow-x:
-        auto;
-
-      background:
-        var(--code-bg);
-
-      color:
-        #e6edf3;
-
-      font-family:
-        "SFMono-Regular",
-        Consolas,
-        "Liberation Mono",
-        monospace;
-
-      font-size:
-        12px;
-
-      line-height:
-        1.6;
+      margin: 0;
+      padding: 13px 14px;
+      overflow-x: auto;
+      background: var(--code-bg);
+      color: #e6edf3;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      line-height: 1.6;
+      scrollbar-width: thin;
     }
+    [data-theme="light"] .message-content pre { color: #24292f; }
 
     /* =====================================================
-       TYPING
+       TYPING INDICATOR
     ===================================================== */
-
-    .typing {
-      display:
-        inline-flex;
-
-      align-items:
-        center;
-
-      gap:
-        4px;
-
-      padding:
-        8px 0;
-    }
-
+    .typing { display: inline-flex; align-items: center; gap: 4px; padding: 6px 0; }
     .typing-dot {
-      width:
-        6px;
-
-      height:
-        6px;
-
-      border-radius:
-        50%;
-
-      background:
-        var(--text-muted);
-
-      animation:
-        typing 1.15s
-        infinite
-        ease-in-out;
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--text-muted);
+      animation: typing 1.15s infinite var(--ease);
     }
-
-    .typing-dot:nth-child(2) {
-      animation-delay:
-        0.15s;
-    }
-
-    .typing-dot:nth-child(3) {
-      animation-delay:
-        0.30s;
-    }
+    .typing-dot:nth-child(2) { animation-delay: 0.15s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.30s; }
 
     /* =====================================================
        SOURCES
     ===================================================== */
-
     .sources {
-      display:
-        flex;
-
-      flex-wrap:
-        wrap;
-
-      gap:
-        6px;
-
-      margin-top:
-        12px;
-
-      padding-top:
-        8px;
-
-      border-top:
-        1px solid var(--border);
-
-      color:
-        var(--text-muted);
-
-      font-size:
-        10px;
+      display: flex; flex-wrap: wrap; gap: 6px;
+      margin-top: 12px; padding-top: 10px;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted); font-size: 10px;
     }
-
     .source-link {
-      padding:
-        4px 7px;
-
-      border:
-        1px solid var(--border);
-
-      border-radius:
-        4px;
-
-      color:
-        var(--text-secondary);
-
-      text-decoration:
-        none;
+      padding: 4px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
     }
+    .source-link:hover { background: var(--surface-hover); color: var(--text); }
 
-    .source-link:hover {
-      background:
-        var(--surface-hover);
-
-      color:
-        var(--text);
+    /* =====================================================
+       SCROLL-TO-BOTTOM
+    ===================================================== */
+    .scroll-bottom-btn {
+      position: absolute;
+      left: 50%;
+      bottom: 14px;
+      transform: translate(-50%, 8px);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 11px;
+      border-radius: 999px;
+      border: 1px solid var(--border-strong);
+      background: var(--elevated);
+      color: var(--text-secondary);
+      font-size: 11px;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--normal) var(--ease), transform var(--normal) var(--ease);
     }
+    .scroll-bottom-btn.visible { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
+    .scroll-bottom-btn svg { width: 12px; height: 12px; }
 
     /* =====================================================
        COMPOSER
     ===================================================== */
-
     .composer-wrap {
-      flex-shrink:
-        0;
-
-      padding:
-        10px 18px 16px;
-
-      background:
-        var(--surface);
+      position: relative;
+      flex-shrink: 0;
+      padding: 8px 16px 14px;
+      background: var(--surface);
     }
 
     .composer {
-      display:
-        flex;
-
-      align-items:
-        flex-end;
-
-      gap:
-        7px;
-
-      padding:
-        8px;
-
-      border:
-        1px solid var(--border-strong);
-
-      border-radius:
-        8px;
-
-      background:
-        var(--input);
-
-      transition:
-        border-color 0.15s ease,
-        box-shadow 0.15s ease;
+      max-width: 780px;
+      margin: 0 auto;
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      padding: 7px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-lg);
+      background: var(--input);
+      box-shadow: var(--shadow-sm);
+      transition: border-color var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
     }
-
     .composer:focus-within {
-      border-color:
-        rgba(88, 101, 242, 0.65);
-
-      box-shadow:
-        0 0 0 1px
-        rgba(88, 101, 242, 0.15);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
     }
 
     .web-search-btn {
-      width:
-        40px;
-
-      height:
-        40px;
-
-      flex-shrink:
-        0;
-
-      display:
-        grid;
-
-      place-items:
-        center;
-
-      border-radius:
-        6px;
-
-      background:
-        transparent;
-
-      color:
-        var(--text-muted);
-
-      cursor:
-        pointer;
-
-      transition:
-        background 0.15s ease,
-        color 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      height: 36px;
+      flex-shrink: 0;
+      padding: 0 10px;
+      border-radius: var(--radius-md);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 11.5px;
+      font-weight: 550;
+      white-space: nowrap;
+      transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
     }
-
-    .web-search-btn:hover {
-      background:
-        var(--surface-hover);
-
-      color:
-        var(--text);
-    }
-
-    .web-search-btn.active {
-      background:
-        rgba(88, 101, 242, 0.18);
-
-      color:
-        #aab1ff;
-    }
-
-    .web-search-btn svg {
-      width:
-        18px;
-
-      height:
-        18px;
-    }
+    .web-search-btn:hover { background: var(--surface-hover); color: var(--text); }
+    .web-search-btn.active { background: var(--accent-soft); color: var(--accent-text); }
+    .web-search-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+    .web-search-btn span { display: none; }
+    @media (min-width: 640px) { .web-search-btn span { display: inline; } }
 
     .composer textarea {
-      flex:
-        1;
-
-      min-height:
-        40px;
-
-      max-height:
-        180px;
-
-      resize:
-        none;
-
-      border:
-        0;
-
-      outline:
-        0;
-
-      background:
-        transparent;
-
-      color:
-        var(--text);
-
-      padding:
-        9px 2px;
-
-      font-size:
-        14px;
-
-      line-height:
-        1.5;
+      flex: 1;
+      min-height: 36px;
+      max-height: 200px;
+      resize: none;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--text);
+      padding: 8px 3px;
+      font-size: 14px;
+      line-height: 1.5;
     }
-
-    .composer textarea::placeholder {
-      color:
-        var(--text-muted);
-    }
+    .composer textarea::placeholder { color: var(--text-muted); }
 
     .send-btn {
-      width:
-        40px;
-
-      height:
-        40px;
-
-      flex-shrink:
-        0;
-
-      display:
-        grid;
-
-      place-items:
-        center;
-
-      border-radius:
-        6px;
-
-      background:
-        var(--accent);
-
-      color:
-        white;
-
-      cursor:
-        pointer;
-
-      transition:
-        background 0.15s ease,
-        opacity 0.15s ease;
+      width: 36px; height: 36px; flex-shrink: 0;
+      display: grid; place-items: center;
+      border-radius: var(--radius-md);
+      background: var(--accent);
+      color: #fff;
+      cursor: pointer;
+      transition: background var(--fast) var(--ease), opacity var(--fast) var(--ease);
     }
-
-    .send-btn:hover:not(:disabled) {
-      background:
-        var(--accent-hover);
-    }
-
-    .send-btn.stop {
-      background:
-        var(--danger);
-    }
-
-    .send-btn:disabled {
-      opacity:
-        0.38;
-
-      cursor:
-        not-allowed;
-    }
-
-    .send-btn svg {
-      width:
-        17px;
-
-      height:
-        17px;
-    }
+    .send-btn:hover:not(:disabled) { background: var(--accent-hover); }
+    .send-btn.stop { background: var(--danger); }
+    .send-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .send-btn svg { width: 16px; height: 16px; }
 
     .composer-footer {
-      display:
-        flex;
-
-      align-items:
-        center;
-
-      justify-content:
-        space-between;
-
-      padding:
-        6px 2px 0;
-
-      color:
-        var(--text-muted);
-
-      font-size:
-        9px;
+      max-width: 780px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 4px 0;
+      color: var(--text-muted);
+      font-size: 10.5px;
     }
-
-    .search-status.active {
-      color:
-        #8ea1ff;
+    .composer-hint kbd {
+      padding: 1px 5px;
+      border: 1px solid var(--border-strong);
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 9.5px;
     }
+    .search-status.active { color: var(--accent-text); }
 
     /* =====================================================
        TOAST
     ===================================================== */
-
     .toast {
-      position:
-        fixed;
-
-      left:
-        50%;
-
-      bottom:
-        24px;
-
-      z-index:
-        100;
-
-      transform:
-        translate(-50%, 15px);
-
-      padding:
-        9px 13px;
-
-      border:
-        1px solid var(--border);
-
-      border-radius:
-        6px;
-
-      background:
-        #111214;
-
-      color:
-        white;
-
-      font-size:
-        11px;
-
-      opacity:
-        0;
-
-      pointer-events:
-        none;
-
-      transition:
-        opacity 0.2s ease,
-        transform 0.2s ease;
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      z-index: 100;
+      transform: translate(-50%, 10px);
+      padding: 9px 14px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      background: var(--elevated);
+      color: var(--text);
+      font-size: 12px;
+      box-shadow: var(--shadow-md);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--normal) var(--ease), transform var(--normal) var(--ease);
     }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-    .toast.show {
-      opacity:
-        1;
+    /* =====================================================
+       MOBILE SIDEBAR TOGGLE (hidden on desktop)
+    ===================================================== */
+    .mobile-nav-btn { display: none; }
 
-      transform:
-        translate(-50%, 0);
+    .sidebar-backdrop {
+      display: none;
     }
 
     /* =====================================================
-       MOBILE
+       RESPONSIVE
     ===================================================== */
-
-    @media (max-width: 760px) {
-      .sidebar {
-        width:
-          220px;
-      }
-
-      .message-row {
-        padding-left:
-          12px;
-
-        padding-right:
-          12px;
-      }
-
-      .message-toolbar {
-        opacity:
-          1;
-      }
+    @media (max-width: 900px) {
+      .sidebar { width: 232px; }
+      .empty-state { margin-top: 6vh; }
+      .suggestion-grid { grid-template-columns: 1fr; }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
+      .app { position: relative; overflow: hidden; }
+
       .sidebar {
-        width:
-          190px;
+        position: absolute;
+        z-index: 20;
+        top: 0; left: 0; bottom: 0;
+        width: 78%;
+        max-width: 300px;
+        transform: translateX(-100%);
+        transition: transform var(--normal) var(--ease);
+        box-shadow: var(--shadow-md);
       }
+      .sidebar.open { transform: translateX(0); }
 
-      .current-tab-model {
-        display:
-          none;
+      .sidebar-backdrop {
+        display: block;
+        position: absolute;
+        inset: 0;
+        z-index: 19;
+        background: rgba(0, 0, 0, 0.4);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity var(--normal) var(--ease);
       }
+      .sidebar-backdrop.visible { opacity: 1; pointer-events: auto; }
 
-      .composer-wrap {
-        padding:
-          8px 10px 10px;
+      .mobile-nav-btn {
+        display: grid;
+        place-items: center;
+        width: 32px; height: 32px;
+        border-radius: var(--radius-sm);
+        color: var(--text-secondary);
+        cursor: pointer;
+        margin-right: 2px;
       }
+      .mobile-nav-btn:hover { background: var(--surface-hover); }
+      .mobile-nav-btn svg { width: 18px; height: 18px; }
+
+      .message-row { padding-left: 14px; padding-right: 14px; }
+      .message-toolbar { opacity: 1; }
+      .current-tab-model { display: none; }
     }
 
-    @media (max-width: 500px) {
-      .sidebar {
-        width:
-          175px;
-      }
-
-      .message.user .message-content {
-        max-width:
-          92%;
-      }
-
-      .message-action span {
-        display:
-          none;
-      }
+    @media (max-width: 480px) {
+      .message.user .message-content { max-width: 90%; }
+      .message-action span { display: none; }
+      .composer-wrap { padding: 7px 8px 10px; }
+      .empty-state { margin-top: 4vh; }
     }
 
     @keyframes messageIn {
-      from {
-        opacity:
-          0;
-
-        transform:
-          translateY(4px);
-      }
-
-      to {
-        opacity:
-          1;
-
-        transform:
-          translateY(0);
-      }
+      from { opacity: 0; transform: translateY(3px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     @keyframes typing {
-      0%,
-      60%,
-      100% {
-        opacity:
-          0.35;
-
-        transform:
-          translateY(0);
-      }
-
-      30% {
-        opacity:
-          1;
-
-        transform:
-          translateY(-3px);
-      }
+      0%, 60%, 100% { opacity: 0.35; transform: translateY(0); }
+      30% { opacity: 1; transform: translateY(-3px); }
     }
   </style>
 </head>
@@ -1582,87 +949,54 @@
 
 <div class="app">
 
+  <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+
   <!-- =====================================================
        SIDEBAR
   ====================================================== -->
-
-  <aside class="sidebar">
+  <aside id="sidebar" class="sidebar">
 
     <header class="sidebar-header">
-
       <div class="brand">
+        <span class="brand-mark">F</span>
         Free AI
       </div>
 
-      <button
-        id="newChatBtn"
-        class="new-chat-btn"
-        type="button"
-        title="New chat"
-        aria-label="New chat"
-      >
-
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-
+      <button id="newChatBtn" class="new-chat-btn" type="button" title="New chat" aria-label="New chat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M12 5v14"/>
           <path d="M5 12h14"/>
-
         </svg>
-
       </button>
-
     </header>
 
+    <div class="sidebar-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="7"/>
+        <path d="m20 20-4-4"/>
+      </svg>
+      <input id="chatSearchInput" type="text" placeholder="Search chats" autocomplete="off" aria-label="Search chats">
+    </div>
 
-    <div
-      id="chatsList"
-      class="chats-list"
-    ></div>
-
+    <div id="chatsList" class="chats-list"></div>
 
     <footer class="user-panel">
-
       <div class="user-info">
-
-        <img
-          id="userAvatar"
-          class="avatar"
-          src=""
-          alt=""
-        >
-
+        <img id="userAvatar" class="avatar" src="" alt="">
         <div class="user-details">
-
-          <div
-            id="userName"
-            class="user-name"
-          >
-            Loading...
-          </div>
-
-          <div
-            id="userEmail"
-            class="user-email"
-          ></div>
-
+          <div id="userName" class="user-name">Loading...</div>
+          <div id="userEmail" class="user-email"></div>
         </div>
-
       </div>
 
-
-      <button
-        id="signOutBtn"
-        class="signout-btn"
-        type="button"
-      >
+      <button id="signOutBtn" class="signout-btn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <path d="m16 17 5-5-5-5"/>
+          <path d="M21 12H9"/>
+        </svg>
         Sign out
       </button>
-
     </footer>
 
   </aside>
@@ -1671,144 +1005,71 @@
   <!-- =====================================================
        CHAT
   ====================================================== -->
-
   <main class="chat">
 
     <header class="chat-header">
-
-      <div
-        id="currentTab"
-        class="current-tab"
-        hidden
-      >
-
-        <span
-          id="currentTabTitle"
-          class="current-tab-title"
-        >
-          New chat
-        </span>
-
-        <span
-          class="current-tab-model"
-        >
-          OpenRouter
-        </span>
-
-        <button
-          id="closeTabBtn"
-          class="close-tab-btn"
-          type="button"
-          title="Close chat"
-          aria-label="Close chat"
-        >
-
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-
-            <path d="M6 6l12 12"/>
-            <path d="M18 6L6 18"/>
-
+      <div style="display:flex; align-items:center; min-width:0;">
+        <button id="mobileNavBtn" class="mobile-nav-btn" type="button" title="Toggle sidebar" aria-label="Toggle sidebar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 6h16"/>
+            <path d="M4 12h16"/>
+            <path d="M4 18h16"/>
           </svg>
-
         </button>
 
+        <div id="currentTab" class="current-tab" hidden>
+          <span id="currentTabTitle" class="current-tab-title">New chat</span>
+          <span class="current-tab-model">OpenRouter</span>
+          <span id="currentTabSearch" class="current-tab-search" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="11" cy="11" r="7"/>
+              <path d="m20 20-4-4"/>
+            </svg>
+            Web
+          </span>
+        </div>
       </div>
-
 
       <div class="header-actions">
-
-        <button
-          id="themeBtn"
-          class="icon-btn"
-          type="button"
-          title="Toggle theme"
-          aria-label="Toggle theme"
-        >
-
-          <svg
-            id="themeIcon"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-
-            <circle
-              cx="12"
-              cy="12"
-              r="4"
-            />
-
-            <path
-              d="
-                M12 2v2
-                M12 20v2
-                M4.93 4.93l1.42 1.42
-                M17.65 17.65l1.42 1.42
-                M2 12h2
-                M20 12h2
-                M4.93 19.07l1.42-1.42
-                M17.65 6.35l1.42-1.42
-              "
-            />
-
+        <button id="closeTabBtn" class="close-tab-btn" type="button" title="Close chat" aria-label="Close chat" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 6l12 12"/>
+            <path d="M18 6L6 18"/>
           </svg>
-
         </button>
 
+        <button id="themeBtn" class="icon-btn" type="button" title="Toggle theme" aria-label="Toggle theme">
+          <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2 M12 20v2 M4.93 4.93l1.42 1.42 M17.65 17.65l1.42 1.42 M2 12h2 M20 12h2 M4.93 19.07l1.42-1.42 M17.65 6.35l1.42-1.42"/>
+          </svg>
+        </button>
       </div>
-
     </header>
 
-
-    <section
-      id="messages"
-      class="messages"
-    ></section>
-
+    <section id="messages" class="messages"></section>
 
     <!-- ===================================================
          COMPOSER
     ==================================================== -->
-
     <div class="composer-wrap">
 
+      <button id="scrollBottomBtn" class="scroll-bottom-btn" type="button" aria-label="Scroll to latest message">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M12 5v14"/>
+          <path d="m19 12-7 7-7-7"/>
+        </svg>
+        New messages
+      </button>
+
       <div class="composer">
-
-        <button
-          id="webSearchBtn"
-          class="web-search-btn"
-          type="button"
-          title="Toggle web search"
-          aria-label="Toggle web search"
-        >
-
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-
-            <circle
-              cx="11"
-              cy="11"
-              r="7"
-            />
-
-            <path
-              d="m20 20-4-4"
-            />
-
+        <button id="webSearchBtn" class="web-search-btn" type="button" title="Toggle web search" aria-label="Toggle web search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="m20 20-4-4"/>
           </svg>
-
+          <span>Search</span>
         </button>
-
 
         <textarea
           id="userInput"
@@ -1818,55 +1079,17 @@
           spellcheck="true"
         ></textarea>
 
-
-        <button
-          id="sendBtn"
-          class="send-btn"
-          type="button"
-          disabled
-          title="Send message"
-          aria-label="Send message"
-        >
-
-          <svg
-            id="sendIcon"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-
+        <button id="sendBtn" class="send-btn" type="button" disabled title="Send message" aria-label="Send message">
+          <svg id="sendIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M22 2 11 13"/>
-
-            <path
-              d="
-                m22 2-7 20
-                -4-9
-                -9-4
-                20-7z
-              "
-            />
-
+            <path d="m22 2-7 20-4-9-9-4 20-7z"/>
           </svg>
-
         </button>
-
       </div>
 
-
       <div class="composer-footer">
-
-        <span
-          id="searchStatus"
-          class="search-status"
-        >
-          Web search off
-        </span>
-
-        <span>
-          AI can make mistakes.
-        </span>
-
+        <span class="composer-hint"><kbd>Enter</kbd> to send &nbsp;·&nbsp; <kbd>Shift</kbd>+<kbd>Enter</kbd> for new line</span>
+        <span id="searchStatus" class="search-status">Web search off</span>
       </div>
 
     </div>
@@ -1875,12 +1098,7 @@
 
 </div>
 
-
-<div
-  id="toast"
-  class="toast"
-></div>
-
+<div id="toast" class="toast"></div>
 
 <script>
 
@@ -1888,572 +1106,239 @@
      CONFIGURATION
   ========================================================= */
 
-  const SUPABASE_URL =
-    "https://houpacapqrrvfqzzrlxs.supabase.co";
-
-  const SUPABASE_PUBLISHABLE_KEY =
-    "sb_publishable_YlFSX-js_1YUsqGxc4BeHQ_bhmlE5Le";
-
-  const WORKER_URL =
-    "https://api.ai09.workers.dev/";
-
-  const LOGIN_PAGE =
-    "./index.html";
-
-  const CHAT_STORAGE_KEY =
-    "free-ai-current-chat";
-
-  const THEME_KEY =
-    "free-ai-theme";
-
+  const SUPABASE_URL = "https://houpacapqrrvfqzzrlxs.supabase.co";
+  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_YlFSX-js_1YUsqGxc4BeHQ_bhmlE5Le";
+  const WORKER_URL = "https://api.ai09.workers.dev/";
+  const LOGIN_PAGE = "./index.html";
+  const CHAT_STORAGE_KEY = "free-ai-current-chat";
+  const THEME_KEY = "free-ai-theme";
 
   /* =========================================================
      SUPABASE
   ========================================================= */
 
-  const supabaseClient =
-    supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_PUBLISHABLE_KEY,
-      {
-        auth: {
-          persistSession:
-            true,
-
-          autoRefreshToken:
-            true,
-
-          detectSessionInUrl:
-            true
-        }
-      }
-    );
-
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true
+    }
+  });
 
   /* =========================================================
      DOM
   ========================================================= */
 
-  const chatsList =
-    document.getElementById(
-      "chatsList"
-    );
-
-  const newChatBtn =
-    document.getElementById(
-      "newChatBtn"
-    );
-
-  const signOutBtn =
-    document.getElementById(
-      "signOutBtn"
-    );
-
-  const userAvatar =
-    document.getElementById(
-      "userAvatar"
-    );
-
-  const userName =
-    document.getElementById(
-      "userName"
-    );
-
-  const userEmail =
-    document.getElementById(
-      "userEmail"
-    );
-
-  const currentTab =
-    document.getElementById(
-      "currentTab"
-    );
-
-  const currentTabTitle =
-    document.getElementById(
-      "currentTabTitle"
-    );
-
-  const closeTabBtn =
-    document.getElementById(
-      "closeTabBtn"
-    );
-
-  const messagesEl =
-    document.getElementById(
-      "messages"
-    );
-
-  const userInput =
-    document.getElementById(
-      "userInput"
-    );
-
-  const sendBtn =
-    document.getElementById(
-      "sendBtn"
-    );
-
-  const sendIcon =
-    document.getElementById(
-      "sendIcon"
-    );
-
-  const webSearchBtn =
-    document.getElementById(
-      "webSearchBtn"
-    );
-
-  const searchStatus =
-    document.getElementById(
-      "searchStatus"
-    );
-
-  const themeBtn =
-    document.getElementById(
-      "themeBtn"
-    );
-
-  const themeIcon =
-    document.getElementById(
-      "themeIcon"
-    );
-
-  const toastEl =
-    document.getElementById(
-      "toast"
-    );
-
+  const chatsList = document.getElementById("chatsList");
+  const chatSearchInput = document.getElementById("chatSearchInput");
+  const newChatBtn = document.getElementById("newChatBtn");
+  const signOutBtn = document.getElementById("signOutBtn");
+  const userAvatar = document.getElementById("userAvatar");
+  const userName = document.getElementById("userName");
+  const userEmail = document.getElementById("userEmail");
+  const currentTab = document.getElementById("currentTab");
+  const currentTabTitle = document.getElementById("currentTabTitle");
+  const currentTabSearch = document.getElementById("currentTabSearch");
+  const closeTabBtn = document.getElementById("closeTabBtn");
+  const messagesEl = document.getElementById("messages");
+  const userInput = document.getElementById("userInput");
+  const sendBtn = document.getElementById("sendBtn");
+  const sendIcon = document.getElementById("sendIcon");
+  const webSearchBtn = document.getElementById("webSearchBtn");
+  const searchStatus = document.getElementById("searchStatus");
+  const themeBtn = document.getElementById("themeBtn");
+  const themeIcon = document.getElementById("themeIcon");
+  const toastEl = document.getElementById("toast");
+  const sidebarEl = document.getElementById("sidebar");
+  const sidebarBackdrop = document.getElementById("sidebarBackdrop");
+  const mobileNavBtn = document.getElementById("mobileNavBtn");
+  const scrollBottomBtn = document.getElementById("scrollBottomBtn");
 
   /* =========================================================
      STATE
   ========================================================= */
 
-  let currentUser =
-    null;
-
-  let currentSession =
-    null;
-
-  let currentChat =
-    null;
-
-  let messageRecords =
-    [];
-
-  let isGenerating =
-    false;
-
-  let controller =
-    null;
-
-  let webSearchEnabled =
-    false;
-
-  let toastTimer =
-    null;
-
+  let currentUser = null;
+  let currentSession = null;
+  let currentChat = null;
+  let messageRecords = [];
+  let isGenerating = false;
+  let controller = null;
+  let webSearchEnabled = false;
+  let toastTimer = null;
+  let allChats = [];
+  let chatSearchQuery = "";
+  let userNearBottom = true;
 
   /* =========================================================
      CONFIG VALIDATION
   ========================================================= */
 
   function isConfigured() {
-
     return (
-      SUPABASE_URL &&
-      SUPABASE_URL.startsWith(
-        "https://"
-      ) &&
-
-      !SUPABASE_URL.includes(
-        "YOUR_"
-      ) &&
-
-      SUPABASE_PUBLISHABLE_KEY &&
-      !SUPABASE_PUBLISHABLE_KEY.includes(
-        "YOUR_"
-      ) &&
-
-      WORKER_URL &&
-      WORKER_URL.startsWith(
-        "https://"
-      ) &&
-
-      !WORKER_URL.includes(
-        "YOUR_"
-      )
+      SUPABASE_URL && SUPABASE_URL.startsWith("https://") && !SUPABASE_URL.includes("YOUR_") &&
+      SUPABASE_PUBLISHABLE_KEY && !SUPABASE_PUBLISHABLE_KEY.includes("YOUR_") &&
+      WORKER_URL && WORKER_URL.startsWith("https://") && !WORKER_URL.includes("YOUR_")
     );
   }
-
 
   /* =========================================================
      TOAST
   ========================================================= */
 
-  function showToast(
-    message
-  ) {
-
-    toastEl.textContent =
-      message;
-
-    toastEl.classList.add(
-      "show"
-    );
-
-    clearTimeout(
-      toastTimer
-    );
-
-    toastTimer =
-      setTimeout(
-        () => {
-
-          toastEl.classList.remove(
-            "show"
-          );
-
-        },
-        2500
-      );
+  function showToast(message) {
+    toastEl.textContent = message;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { toastEl.classList.remove("show"); }, 2500);
   }
-
 
   /* =========================================================
      THEME
   ========================================================= */
 
   function loadTheme() {
-
-    const saved =
-      localStorage.getItem(
-        THEME_KEY
-      );
-
-    if (saved) {
-
-      document.documentElement
-        .dataset.theme =
-        saved;
-    }
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved) { document.documentElement.dataset.theme = saved; }
   }
-
 
   function updateThemeIcon() {
-
-    const dark =
-      document.documentElement
-        .dataset.theme ===
-      "dark";
-
-
+    const dark = document.documentElement.dataset.theme === "dark";
     if (dark) {
-
       themeIcon.innerHTML = `
-        <circle
-          cx="12"
-          cy="12"
-          r="4"
-        />
-
-        <path
-          d="
-            M12 2v2
-            M12 20v2
-            M4.93 4.93l1.42 1.42
-            M17.65 17.65l1.42 1.42
-            M2 12h2
-            M20 12h2
-            M4.93 19.07l1.42-1.42
-            M17.65 6.35l1.42-1.42
-          "
-        />
+        <circle cx="12" cy="12" r="4"/>
+        <path d="M12 2v2 M12 20v2 M4.93 4.93l1.42 1.42 M17.65 17.65l1.42 1.42 M2 12h2 M20 12h2 M4.93 19.07l1.42-1.42 M17.65 6.35l1.42-1.42"/>
       `;
-
     } else {
-
-      themeIcon.innerHTML = `
-        <path
-          d="
-            M21 12.8
-            A8.5 8.5 0 1 1
-            11.2 3
-            A6.7 6.7 0 0 0
-            21 12.8z
-          "
-        />
-      `;
+      themeIcon.innerHTML = `<path d="M21 12.8A8.5 8.5 0 1 1 11.2 3A6.7 6.7 0 0 0 21 12.8z"/>`;
     }
   }
 
-
-  themeBtn.addEventListener(
-    "click",
-    () => {
-
-      const current =
-        document.documentElement
-          .dataset.theme;
-
-
-      const next =
-        current === "dark"
-          ? "light"
-          : "dark";
-
-
-      document.documentElement
-        .dataset.theme =
-        next;
-
-
-      localStorage.setItem(
-        THEME_KEY,
-        next
-      );
-
-
-      updateThemeIcon();
-    }
-  );
-
+  themeBtn.addEventListener("click", () => {
+    const current = document.documentElement.dataset.theme;
+    const next = current === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem(THEME_KEY, next);
+    updateThemeIcon();
+  });
 
   loadTheme();
   updateThemeIcon();
 
+  /* =========================================================
+     MOBILE SIDEBAR
+  ========================================================= */
+
+  function openSidebar() {
+    sidebarEl.classList.add("open");
+    sidebarBackdrop.classList.add("visible");
+  }
+
+  function closeSidebar() {
+    sidebarEl.classList.remove("open");
+    sidebarBackdrop.classList.remove("visible");
+  }
+
+  mobileNavBtn.addEventListener("click", () => {
+    sidebarEl.classList.contains("open") ? closeSidebar() : openSidebar();
+  });
+
+  sidebarBackdrop.addEventListener("click", closeSidebar);
 
   /* =========================================================
      AUTH
   ========================================================= */
 
   async function ensureFreshSession() {
+    const { data, error } = await supabaseClient.auth.refreshSession();
 
-    const {
-      data,
-      error
-    } =
-      await supabaseClient.auth
-        .refreshSession();
-
-
-    if (
-      error ||
-      !data?.session
-    ) {
-
-      console.error(
-        "Session refresh failed:",
-        error
-      );
-
-      await supabaseClient.auth
-        .signOut();
-
-      window.location.replace(
-        LOGIN_PAGE
-      );
-
+    if (error || !data?.session) {
+      console.error("Session refresh failed:", error);
+      await supabaseClient.auth.signOut();
+      window.location.replace(LOGIN_PAGE);
       return null;
     }
 
-
-    currentSession =
-      data.session;
-
-    currentUser =
-      data.session.user;
-
+    currentSession = data.session;
+    currentUser = data.session.user;
 
     return data.session;
   }
 
-
   async function initializeAuth() {
+    const { data, error } = await supabaseClient.auth.getSession();
 
-    const {
-      data,
-      error
-    } =
-      await supabaseClient.auth
-        .getSession();
-
-
-    if (
-      error ||
-      !data?.session
-    ) {
-
-      window.location.replace(
-        LOGIN_PAGE
-      );
-
+    if (error || !data?.session) {
+      window.location.replace(LOGIN_PAGE);
       return false;
     }
 
-
-    currentSession =
-      data.session;
-
-    currentUser =
-      data.session.user;
-
+    currentSession = data.session;
+    currentUser = data.session.user;
 
     /*
      * Refresh immediately when opening
      * the chat page so we start with
      * a valid access token.
      */
+    const refreshed = await ensureFreshSession();
 
-    const refreshed =
-      await ensureFreshSession();
-
-
-    return Boolean(
-      refreshed
-    );
+    return Boolean(refreshed);
   }
 
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    currentSession = session;
+    currentUser = session?.user || null;
 
-  supabaseClient.auth
-    .onAuthStateChange(
-      (
-        event,
-        session
-      ) => {
-
-        currentSession =
-          session;
-
-        currentUser =
-          session?.user ||
-          null;
-
-
-        if (!session) {
-
-          window.location.replace(
-            LOGIN_PAGE
-          );
-        }
-      }
-    );
-
+    if (!session) {
+      window.location.replace(LOGIN_PAGE);
+    }
+  });
 
   /* =========================================================
      USER UI
   ========================================================= */
 
-  function fallbackAvatar(
-    name
-  ) {
-
-    const letter =
-      (
-        name ||
-        "U"
-      )
-        .trim()
-        .charAt(0)
-        .toUpperCase() ||
-      "U";
-
+  function fallbackAvatar(name) {
+    const letter = (name || "U").trim().charAt(0).toUpperCase() || "U";
 
     return (
       "data:image/svg+xml;charset=UTF-8," +
-      encodeURIComponent(
-        `
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="64"
-          height="64"
-          viewBox="0 0 64 64"
-        >
-          <rect
-            width="64"
-            height="64"
-            fill="#5865f2"
-          />
-
-          <text
-            x="50%"
-            y="54%"
-            dominant-baseline="middle"
-            text-anchor="middle"
-            fill="white"
-            font-size="28"
-            font-family="Arial"
-            font-weight="bold"
-          >
-            ${letter}
-          </text>
+      encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+          <rect width="64" height="64" fill="#6c8eff"/>
+          <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="white" font-size="28" font-family="Arial" font-weight="bold">${letter}</text>
         </svg>
-        `
-      )
+      `)
     );
   }
 
-
   function renderUser() {
+    if (!currentUser) { return; }
 
-    if (!currentUser) {
-      return;
-    }
+    const metadata = currentUser.user_metadata || {};
+    const name = metadata.full_name || metadata.name || currentUser.email || "User";
 
-
-    const metadata =
-      currentUser.user_metadata ||
-      {};
-
-
-    const name =
-      metadata.full_name ||
-      metadata.name ||
-      currentUser.email ||
-      "User";
-
-
-    userName.textContent =
-      name;
-
-
-    userEmail.textContent =
-      currentUser.email ||
-      "";
-
-
-    userAvatar.src =
-      metadata.avatar_url ||
-      fallbackAvatar(
-        name
-      );
+    userName.textContent = name;
+    userEmail.textContent = currentUser.email || "";
+    userAvatar.src = metadata.avatar_url || fallbackAvatar(name);
   }
-
 
   /* =========================================================
      CURRENT CHAT TAB
   ========================================================= */
 
   function updateCurrentTab() {
-
     if (!currentChat) {
-
-      currentTab.hidden =
-        true;
-
+      currentTab.hidden = true;
+      closeTabBtn.hidden = true;
       return;
     }
 
-
-    currentTab.hidden =
-      false;
-
-
-    currentTabTitle.textContent =
-      currentChat.title ||
-      "New chat";
+    currentTab.hidden = false;
+    closeTabBtn.hidden = false;
+    currentTabTitle.textContent = currentChat.title || "New chat";
   }
-
 
   /*
    * Close means "close the current tab",
@@ -2464,261 +1349,134 @@
    * the sidebar.
    */
 
-  closeTabBtn.addEventListener(
-    "click",
-    () => {
+  closeTabBtn.addEventListener("click", () => {
+    if (isGenerating) { stopGeneration(); }
 
-      if (
-        isGenerating
-      ) {
+    currentChat = null;
+    messageRecords = [];
+    localStorage.removeItem(CHAT_STORAGE_KEY);
 
-        stopGeneration();
-      }
-
-
-      currentChat =
-        null;
-
-      messageRecords =
-        [];
-
-      localStorage.removeItem(
-        CHAT_STORAGE_KEY
-      );
-
-
-      updateCurrentTab();
-
-      renderMessages();
-
-      userInput.focus();
-    }
-  );
-
+    updateCurrentTab();
+    renderMessages();
+    renderChatsList();
+    userInput.focus();
+  });
 
   /* =========================================================
      CHAT TITLE
   ========================================================= */
 
-  function makeChatTitle(
-    text
-  ) {
+  function makeChatTitle(text) {
+    const clean = text.replace(/\s+/g, " ").trim();
 
-    const clean =
-      text
-        .replace(
-          /\s+/g,
-          " "
-        )
-        .trim();
+    if (!clean) { return "New chat"; }
+    if (clean.length <= 42) { return clean; }
 
-
-    if (!clean) {
-      return "New chat";
-    }
-
-
-    if (
-      clean.length <= 42
-    ) {
-
-      return clean;
-    }
-
-
-    return (
-      clean.slice(
-        0,
-        39
-      ) +
-      "..."
-    );
+    return clean.slice(0, 39) + "...";
   }
 
-
   /* =========================================================
-     LOAD CHATS
+     DATE GROUPING (sidebar sections)
   ========================================================= */
 
-  async function loadChats() {
+  function dateGroupLabel(isoString) {
+    const then = new Date(isoString);
+    const now = new Date();
 
-    const {
-      data,
-      error
-    } =
-      await supabaseClient
-        .from("chats")
-        .select(
-          "id,user_id,title,created_at,updated_at"
-        )
-        .order(
-          "updated_at",
-          {
-            ascending:
-              false
-          }
-        );
+    const startOfDay = date => new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
+    const diffDays = Math.round((startOfDay(now) - startOfDay(then)) / 86400000);
 
-    if (error) {
+    if (diffDays <= 0) { return "Today"; }
+    if (diffDays === 1) { return "Yesterday"; }
+    if (diffDays <= 7) { return "Previous 7 days"; }
+    if (diffDays <= 30) { return "Previous 30 days"; }
 
-      console.error(
-        "loadChats:",
-        error
-      );
+    return "Older";
+  }
 
-      showToast(
-        error.message ||
-          "Could not load chats."
-      );
+  /* =========================================================
+     RENDER CHATS LIST (grouped + filterable)
+  ========================================================= */
 
-      return [];
+  function renderChatsList() {
+
+    chatsList.innerHTML = "";
+
+    const query = chatSearchQuery.trim().toLowerCase();
+
+    const filtered = query
+      ? allChats.filter(chat => (chat.title || "New chat").toLowerCase().includes(query))
+      : allChats;
+
+    if (filtered.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "chats-empty";
+      empty.textContent = query ? "No chats match your search." : "No conversations yet.";
+      chatsList.appendChild(empty);
+      return;
     }
 
+    let lastGroup = null;
 
-    chatsList.innerHTML =
-      "";
+    for (const chat of filtered) {
 
+      const group = dateGroupLabel(chat.updated_at || chat.created_at);
 
-    for (
-      const chat
-      of data || []
-    ) {
-
-      const item =
-        document.createElement(
-          "div"
-        );
-
-
-      item.className =
-        "chat-item";
-
-
-      if (
-        currentChat &&
-        currentChat.id ===
-          chat.id
-      ) {
-
-        item.classList.add(
-          "active"
-        );
+      if (group !== lastGroup) {
+        const label = document.createElement("div");
+        label.className = "chat-group-label";
+        label.textContent = group;
+        chatsList.appendChild(label);
+        lastGroup = group;
       }
 
+      const item = document.createElement("div");
+      item.className = "chat-item";
 
-      const title =
-        document.createElement(
-          "span"
-        );
+      if (currentChat && currentChat.id === chat.id) {
+        item.classList.add("active");
+      }
 
+      const title = document.createElement("span");
+      title.className = "chat-item-title";
+      title.textContent = chat.title || "New chat";
 
-      title.className =
-        "chat-item-title";
-
-
-      title.textContent =
-        chat.title ||
-        "New chat";
-
-
-      const actions =
-        document.createElement(
-          "div"
-        );
-
-
-      actions.className =
-        "chat-item-actions";
-
+      const actions = document.createElement("div");
+      actions.className = "chat-item-actions";
 
       /*
        * Close tab.
        */
-
-      const closeBtn =
-        document.createElement(
-          "button"
-        );
-
-
-      closeBtn.type =
-        "button";
-
-      closeBtn.className =
-        "chat-item-action";
-
-      closeBtn.title =
-        "Close tab";
-
-      closeBtn.setAttribute(
-        "aria-label",
-        "Close tab"
-      );
-
+      const closeBtn = document.createElement("button");
+      closeBtn.type = "button";
+      closeBtn.className = "chat-item-action";
+      closeBtn.title = "Close tab";
+      closeBtn.setAttribute("aria-label", "Close tab");
       closeBtn.innerHTML = `
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M6 6l12 12"/>
           <path d="M18 6L6 18"/>
         </svg>
       `;
 
-
-      closeBtn.addEventListener(
-        "click",
-        event => {
-
-          event.stopPropagation();
-
-
-          if (
-            currentChat &&
-            currentChat.id ===
-              chat.id
-          ) {
-
-            closeTabBtn.click();
-          }
+      closeBtn.addEventListener("click", event => {
+        event.stopPropagation();
+        if (currentChat && currentChat.id === chat.id) {
+          closeTabBtn.click();
         }
-      );
-
+      });
 
       /*
        * Delete chat.
        */
-
-      const deleteBtn =
-        document.createElement(
-          "button"
-        );
-
-
-      deleteBtn.type =
-        "button";
-
-      deleteBtn.className =
-        "chat-item-action delete";
-
-      deleteBtn.title =
-        "Delete chat";
-
-      deleteBtn.setAttribute(
-        "aria-label",
-        "Delete chat"
-      );
-
+      const deleteBtn = document.createElement("button");
+      deleteBtn.type = "button";
+      deleteBtn.className = "chat-item-action delete";
+      deleteBtn.title = "Delete chat";
+      deleteBtn.setAttribute("aria-label", "Delete chat");
       deleteBtn.innerHTML = `
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M3 6h18"/>
           <path d="M8 6V4h8v2"/>
           <path d="M19 6l-1 15H6L5 6"/>
@@ -2727,420 +1485,208 @@
         </svg>
       `;
 
+      deleteBtn.addEventListener("click", async event => {
+        event.stopPropagation();
+        await deleteChat(chat.id);
+      });
 
-      deleteBtn.addEventListener(
-        "click",
-        async event => {
+      actions.appendChild(closeBtn);
+      actions.appendChild(deleteBtn);
 
-          event.stopPropagation();
+      item.appendChild(title);
+      item.appendChild(actions);
 
-          await deleteChat(
-            chat.id
-          );
-        }
-      );
+      item.addEventListener("click", () => {
+        openChat(chat.id);
+        closeSidebar();
+      });
 
-
-      actions.appendChild(
-        closeBtn
-      );
-
-      actions.appendChild(
-        deleteBtn
-      );
-
-
-      item.appendChild(
-        title
-      );
-
-      item.appendChild(
-        actions
-      );
-
-
-      item.addEventListener(
-        "click",
-        () => {
-
-          openChat(
-            chat.id
-          );
-        }
-      );
-
-
-      chatsList.appendChild(
-        item
-      );
+      chatsList.appendChild(item);
     }
-
-
-    return data || [];
   }
 
+  chatSearchInput.addEventListener("input", () => {
+    chatSearchQuery = chatSearchInput.value;
+    renderChatsList();
+  });
+
+  /* =========================================================
+     LOAD CHATS
+  ========================================================= */
+
+  async function loadChats() {
+
+    const { data, error } = await supabaseClient
+      .from("chats")
+      .select("id,user_id,title,created_at,updated_at")
+      .order("updated_at", { ascending: false });
+
+    if (error) {
+      console.error("loadChats:", error);
+      showToast(error.message || "Could not load chats.");
+      return [];
+    }
+
+    allChats = data || [];
+    renderChatsList();
+
+    return allChats;
+  }
 
   /* =========================================================
      CREATE CHAT
   ========================================================= */
 
-  async function createChat(
-    title = "New chat"
-  ) {
+  async function createChat(title = "New chat") {
 
-    if (!currentUser) {
-      return null;
-    }
+    if (!currentUser) { return null; }
 
-
-    const {
-      data,
-      error
-    } =
-      await supabaseClient
-        .from("chats")
-        .insert({
-          user_id:
-            currentUser.id,
-
-          title
-        })
-        .select()
-        .single();
-
+    const { data, error } = await supabaseClient
+      .from("chats")
+      .insert({ user_id: currentUser.id, title })
+      .select()
+      .single();
 
     if (error) {
-
-      console.error(
-        "createChat:",
-        error
-      );
-
-      showToast(
-        error.message ||
-          "Could not create chat."
-      );
-
+      console.error("createChat:", error);
+      showToast(error.message || "Could not create chat.");
       return null;
     }
 
+    currentChat = data;
+    messageRecords = [];
 
-    currentChat =
-      data;
-
-
-    messageRecords =
-      [];
-
-
-    localStorage.setItem(
-      CHAT_STORAGE_KEY,
-      data.id
-    );
-
+    localStorage.setItem(CHAT_STORAGE_KEY, data.id);
 
     updateCurrentTab();
-
     renderMessages();
-
     await loadChats();
-
 
     return data;
   }
-
 
   /* =========================================================
      UPDATE CHAT TITLE
   ========================================================= */
 
-  async function updateChatTitle(
-    title
-  ) {
+  async function updateChatTitle(title) {
 
-    if (!currentChat) {
-      return;
-    }
+    if (!currentChat) { return; }
 
-
-    const {
-      data,
-      error
-    } =
-      await supabaseClient
-        .from("chats")
-        .update({
-          title,
-
-          updated_at:
-            new Date()
-              .toISOString()
-        })
-        .eq(
-          "id",
-          currentChat.id
-        )
-        .select()
-        .single();
-
+    const { data, error } = await supabaseClient
+      .from("chats")
+      .update({ title, updated_at: new Date().toISOString() })
+      .eq("id", currentChat.id)
+      .select()
+      .single();
 
     if (error) {
-
-      console.error(
-        "updateChatTitle:",
-        error
-      );
-
+      console.error("updateChatTitle:", error);
       return;
     }
 
-
-    currentChat =
-      data;
-
-
+    currentChat = data;
     updateCurrentTab();
   }
-
 
   /* =========================================================
      DELETE CHAT
   ========================================================= */
 
-  async function deleteChat(
-    chatId
-  ) {
+  async function deleteChat(chatId) {
 
-    const confirmed =
-      window.confirm(
-        "Delete this entire conversation?"
-      );
+    const confirmed = window.confirm("Delete this entire conversation?");
 
+    if (!confirmed) { return; }
 
-    if (!confirmed) {
-      return;
-    }
-
-
-    const {
-      error
-    } =
-      await supabaseClient
-        .from("chats")
-        .delete()
-        .eq(
-          "id",
-          chatId
-        );
-
+    const { error } = await supabaseClient.from("chats").delete().eq("id", chatId);
 
     if (error) {
-
-      console.error(
-        "deleteChat:",
-        error
-      );
-
-      showToast(
-        error.message ||
-          "Could not delete chat."
-      );
-
+      console.error("deleteChat:", error);
+      showToast(error.message || "Could not delete chat.");
       return;
     }
 
-
-    if (
-      currentChat &&
-      currentChat.id ===
-        chatId
-    ) {
-
+    if (currentChat && currentChat.id === chatId) {
       stopGeneration();
 
+      currentChat = null;
+      messageRecords = [];
 
-      currentChat =
-        null;
-
-      messageRecords =
-        [];
-
-
-      localStorage.removeItem(
-        CHAT_STORAGE_KEY
-      );
-
+      localStorage.removeItem(CHAT_STORAGE_KEY);
 
       updateCurrentTab();
-
       renderMessages();
     }
 
-
     await loadChats();
   }
-
 
   /* =========================================================
      OPEN CHAT
   ========================================================= */
 
-  async function openChat(
-    chatId
-  ) {
+  async function openChat(chatId) {
 
-    if (
-      isGenerating
-    ) {
+    if (isGenerating) { stopGeneration(); }
 
-      stopGeneration();
-    }
-
-
-    const {
-      data: chat,
-      error: chatError
-    } =
-      await supabaseClient
-        .from("chats")
-        .select("*")
-        .eq(
-          "id",
-          chatId
-        )
-        .single();
-
+    const { data: chat, error: chatError } = await supabaseClient
+      .from("chats")
+      .select("*")
+      .eq("id", chatId)
+      .single();
 
     if (chatError) {
-
-      console.error(
-        "openChat:",
-        chatError
-      );
-
-      showToast(
-        chatError.message ||
-          "Could not open chat."
-      );
-
+      console.error("openChat:", chatError);
+      showToast(chatError.message || "Could not open chat.");
       return;
     }
 
-
-    const {
-      data: messages,
-      error: messageError
-    } =
-      await supabaseClient
-        .from("messages")
-        .select(
-          "id,chat_id,role,content,created_at"
-        )
-        .eq(
-          "chat_id",
-          chatId
-        )
-        .order(
-          "created_at",
-          {
-            ascending:
-              true
-          }
-        );
-
+    const { data: messages, error: messageError } = await supabaseClient
+      .from("messages")
+      .select("id,chat_id,role,content,created_at")
+      .eq("chat_id", chatId)
+      .order("created_at", { ascending: true });
 
     if (messageError) {
-
-      console.error(
-        "openChat messages:",
-        messageError
-      );
-
-      showToast(
-        messageError.message ||
-          "Could not load messages."
-      );
-
+      console.error("openChat messages:", messageError);
+      showToast(messageError.message || "Could not load messages.");
       return;
     }
 
+    currentChat = chat;
+    messageRecords = messages || [];
 
-    currentChat =
-      chat;
-
-
-    messageRecords =
-      messages || [];
-
-
-    localStorage.setItem(
-      CHAT_STORAGE_KEY,
-      chat.id
-    );
-
+    localStorage.setItem(CHAT_STORAGE_KEY, chat.id);
 
     updateCurrentTab();
-
     renderMessages();
-
     await loadChats();
   }
-
 
   /* =========================================================
      SAVE MESSAGE
   ========================================================= */
 
-  async function saveMessage(
-    role,
-    content
-  ) {
+  async function saveMessage(role, content) {
 
-    if (!currentChat) {
-      return null;
-    }
+    if (!currentChat) { return null; }
 
-
-    const {
-      data,
-      error
-    } =
-      await supabaseClient
-        .from("messages")
-        .insert({
-          chat_id:
-            currentChat.id,
-
-          role,
-
-          content
-        })
-        .select()
-        .single();
-
+    const { data, error } = await supabaseClient
+      .from("messages")
+      .insert({ chat_id: currentChat.id, role, content })
+      .select()
+      .single();
 
     if (error) {
-
-      console.error(
-        "saveMessage:",
-        error
-      );
-
-      throw new Error(
-        error.message ||
-          "Could not save message."
-      );
+      console.error("saveMessage:", error);
+      throw new Error(error.message || "Could not save message.");
     }
 
-
-    messageRecords.push(
-      data
-    );
-
+    messageRecords.push(data);
 
     return data;
   }
-
 
   /* =========================================================
      UPDATE CHAT TIME
@@ -3148,316 +1694,114 @@
 
   async function touchChat() {
 
-    if (!currentChat) {
-      return;
-    }
+    if (!currentChat) { return; }
 
+    const { data, error } = await supabaseClient
+      .from("chats")
+      .update({ updated_at: new Date().toISOString() })
+      .eq("id", currentChat.id)
+      .select()
+      .single();
 
-    const {
-      data,
-      error
-    } =
-      await supabaseClient
-        .from("chats")
-        .update({
-          updated_at:
-            new Date()
-              .toISOString()
-        })
-        .eq(
-          "id",
-          currentChat.id
-        )
-        .select()
-        .single();
-
-
-    if (
-      !error &&
-      data
-    ) {
-
-      currentChat =
-        data;
-
+    if (!error && data) {
+      currentChat = data;
       updateCurrentTab();
     }
   }
-
 
   /* =========================================================
      DELETE MESSAGE
   ========================================================= */
 
-  async function deleteMessage(
-    messageId
-  ) {
+  async function deleteMessage(messageId) {
 
-    const confirmed =
-      window.confirm(
-        "Delete this message?"
-      );
+    const confirmed = window.confirm("Delete this message?");
 
+    if (!confirmed) { return; }
 
-    if (!confirmed) {
-      return;
-    }
-
-
-    const {
-      error
-    } =
-      await supabaseClient
-        .from("messages")
-        .delete()
-        .eq(
-          "id",
-          messageId
-        )
-        .eq(
-          "chat_id",
-          currentChat.id
-        );
-
+    const { error } = await supabaseClient
+      .from("messages")
+      .delete()
+      .eq("id", messageId)
+      .eq("chat_id", currentChat.id);
 
     if (error) {
-
-      console.error(
-        "deleteMessage:",
-        error
-      );
-
-      showToast(
-        error.message ||
-          "Could not delete message."
-      );
-
+      console.error("deleteMessage:", error);
+      showToast(error.message || "Could not delete message.");
       return;
     }
 
-
-    messageRecords =
-      messageRecords.filter(
-        message =>
-          message.id !==
-          messageId
-      );
-
+    messageRecords = messageRecords.filter(message => message.id !== messageId);
 
     renderMessages();
 
-
     await touchChat();
-
     await loadChats();
 
-
-    showToast(
-      "Message deleted."
-    );
+    showToast("Message deleted.");
   }
-
 
   /* =========================================================
      MARKDOWN
   ========================================================= */
 
-  marked.setOptions({
-    breaks:
-      true,
+  marked.setOptions({ breaks: true, gfm: true });
 
-    gfm:
-      true
-  });
-
-
-  function renderMarkdown(
-    text
-  ) {
-
-    const html =
-      marked.parse(
-        text || ""
-      );
-
-
-    return DOMPurify.sanitize(
-      html,
-      {
-        USE_PROFILES: {
-          html:
-            true
-        }
-      }
-    );
+  function renderMarkdown(text) {
+    const html = marked.parse(text || "");
+    return DOMPurify.sanitize(html, { USE_PROFILES: { html: true } });
   }
-
 
   /* =========================================================
      CODE BLOCKS
   ========================================================= */
 
-  function enhanceCodeBlocks(
-    container
-  ) {
+  function enhanceCodeBlocks(container) {
 
-    container
-      .querySelectorAll(
-        "pre"
-      )
-      .forEach(
-        pre => {
+    container.querySelectorAll("pre").forEach(pre => {
 
-          if (
-            pre.parentElement &&
-            pre.parentElement
-              .classList
-              .contains(
-                "code-wrapper"
-              )
-          ) {
+      if (pre.parentElement && pre.parentElement.classList.contains("code-wrapper")) {
+        return;
+      }
 
-            return;
-          }
+      const code = pre.querySelector("code");
+      if (!code) { return; }
 
+      const wrapper = document.createElement("div");
+      wrapper.className = "code-wrapper";
 
-          const code =
-            pre.querySelector(
-              "code"
-            );
+      const header = document.createElement("div");
+      header.className = "code-header";
 
+      const language = document.createElement("span");
 
-          if (!code) {
-            return;
-          }
+      const languageClass = Array.from(code.classList).find(value => value.startsWith("language-"));
+      language.textContent = languageClass ? languageClass.replace("language-", "") : "code";
 
+      const copy = document.createElement("button");
+      copy.type = "button";
+      copy.className = "code-copy";
+      copy.textContent = "Copy";
 
-          const wrapper =
-            document.createElement(
-              "div"
-            );
-
-
-          wrapper.className =
-            "code-wrapper";
-
-
-          const header =
-            document.createElement(
-              "div"
-            );
-
-
-          header.className =
-            "code-header";
-
-
-          const language =
-            document.createElement(
-              "span"
-            );
-
-
-          const languageClass =
-            Array.from(
-              code.classList
-            ).find(
-              value =>
-                value.startsWith(
-                  "language-"
-                )
-            );
-
-
-          language.textContent =
-            languageClass
-              ? languageClass.replace(
-                  "language-",
-                  ""
-                )
-              : "code";
-
-
-          const copy =
-            document.createElement(
-              "button"
-            );
-
-
-          copy.type =
-            "button";
-
-          copy.className =
-            "code-copy";
-
-          copy.textContent =
-            "Copy";
-
-
-          copy.addEventListener(
-            "click",
-            async () => {
-
-              try {
-
-                await navigator
-                  .clipboard
-                  .writeText(
-                    code.textContent
-                  );
-
-
-                copy.textContent =
-                  "Copied";
-
-
-                setTimeout(
-                  () => {
-
-                    copy.textContent =
-                      "Copy";
-
-                  },
-                  1200
-                );
-
-              } catch {
-
-                showToast(
-                  "Could not copy code."
-                );
-              }
-            }
-          );
-
-
-          header.appendChild(
-            language
-          );
-
-          header.appendChild(
-            copy
-          );
-
-
-          pre.parentNode
-            .insertBefore(
-              wrapper,
-              pre
-            );
-
-
-          wrapper.appendChild(
-            header
-          );
-
-          wrapper.appendChild(
-            pre
-          );
+      copy.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(code.textContent);
+          copy.textContent = "Copied";
+          setTimeout(() => { copy.textContent = "Copy"; }, 1200);
+        } catch {
+          showToast("Could not copy code.");
         }
-      );
-  }
+      });
 
+      header.appendChild(language);
+      header.appendChild(copy);
+
+      pre.parentNode.insertBefore(wrapper, pre);
+
+      wrapper.appendChild(header);
+      wrapper.appendChild(pre);
+    });
+  }
 
   /* =========================================================
      MESSAGE SVG ICONS
@@ -3466,324 +1810,165 @@
   const ICONS = {
 
     copy: `
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <rect
-          x="9"
-          y="9"
-          width="11"
-          height="11"
-          rx="2"
-        />
-
-        <path
-          d="
-            M5 15H4
-            a2 2 0 0 1-2-2V4
-            a2 2 0 0 1 2-2h9
-            a2 2 0 0 1 2 2v1
-          "
-        />
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="9" y="9" width="11" height="11" rx="2"/>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
       </svg>
     `,
 
     retry: `
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <path
-          d="
-            M20 11a8.1 8.1 0 0 0-15.5-3
-          "
-        />
-
-        <path
-          d="
-            M4 4v5h5
-          "
-        />
-
-        <path
-          d="
-            M4 13a8.1 8.1 0 0 0 15.5 3
-          "
-        />
-
-        <path
-          d="
-            M20 20v-5h-5
-          "
-        />
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20 11a8.1 8.1 0 0 0-15.5-3"/>
+        <path d="M4 4v5h5"/>
+        <path d="M4 13a8.1 8.1 0 0 0 15.5 3"/>
+        <path d="M20 20v-5h-5"/>
       </svg>
     `,
 
     delete: `
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M3 6h18"/>
-
-        <path
-          d="M8 6V4h8v2"
-        />
-
-        <path
-          d="M19 6l-1 15H6L5 6"
-        />
-
-        <path
-          d="M10 11v6"
-        />
-
-        <path
-          d="M14 11v6"
-        />
+        <path d="M8 6V4h8v2"/>
+        <path d="M19 6l-1 15H6L5 6"/>
+        <path d="M10 11v6"/>
+        <path d="M14 11v6"/>
       </svg>
     `
   };
-
 
   /* =========================================================
      MESSAGE TOOL BUTTON
   ========================================================= */
 
-  function createMessageAction(
-    label,
-    type,
-    callback
-  ) {
+  function createMessageAction(label, type, callback) {
 
-    const button =
-      document.createElement(
-        "button"
-      );
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "message-action " + type;
+    button.title = label;
+    button.setAttribute("aria-label", label);
+    button.innerHTML = ICONS[type] + `<span>${label}</span>`;
 
-
-    button.type =
-      "button";
-
-    button.className =
-      "message-action " +
-      type;
-
-    button.innerHTML =
-      ICONS[type] +
-      `<span>${label}</span>`;
-
-
-    button.addEventListener(
-      "click",
-      event => {
-
-        event.stopPropagation();
-
-        callback();
-      }
-    );
-
+    button.addEventListener("click", event => {
+      event.stopPropagation();
+      callback();
+    });
 
     return button;
   }
-
 
   /* =========================================================
      COPY MESSAGE
   ========================================================= */
 
-  async function copyMessage(
-    content
-  ) {
-
+  async function copyMessage(content) {
     try {
-
-      await navigator.clipboard
-        .writeText(
-          content
-        );
-
-
-      showToast(
-        "Message copied."
-      );
-
+      await navigator.clipboard.writeText(content);
+      showToast("Message copied.");
     } catch {
-
-      showToast(
-        "Could not copy message."
-      );
+      showToast("Could not copy message.");
     }
   }
-
 
   /* =========================================================
      RENDER MESSAGE
   ========================================================= */
 
-  function renderMessage(
-    record,
-    index
-  ) {
+  function renderMessage(record, index) {
 
-    const row =
-      document.createElement(
-        "div"
-      );
+    const row = document.createElement("div");
+    row.className = "message-row";
+    row.dataset.messageId = record.id;
 
+    const container = document.createElement("div");
+    container.className = "message-container";
 
-    row.className =
-      "message-row";
+    const message = document.createElement("article");
+    message.className = record.role === "user" ? "message user" : "message ai";
 
-
-    row.dataset.messageId =
-      record.id;
-
-
-    const container =
-      document.createElement(
-        "div"
-      );
-
-
-    container.className =
-      "message-container";
-
-
-    const message =
-      document.createElement(
-        "article"
-      );
-
-
-    message.className =
-      record.role ===
-      "user"
-        ? "message user"
-        : "message ai";
-
-
-    const content =
-      document.createElement(
-        "div"
-      );
-
-
-    content.className =
-      "message-content";
-
-
-    if (
-      record.role ===
-      "user"
-    ) {
-
-      content.textContent =
-        record.content;
-
-    } else {
-
-      content.innerHTML =
-        renderMarkdown(
-          record.content
-        );
-
-
-      enhanceCodeBlocks(
-        content
-      );
+    if (record.role !== "user") {
+      const roleLabel = document.createElement("div");
+      roleLabel.className = "role-label";
+      roleLabel.innerHTML = `<span class="role-dot"></span>Assistant`;
+      message.appendChild(roleLabel);
     }
 
+    const content = document.createElement("div");
+    content.className = "message-content";
 
-    message.appendChild(
-      content
-    );
+    if (record.role === "user") {
+      content.textContent = record.content;
+    } else {
+      content.innerHTML = renderMarkdown(record.content);
+      enhanceCodeBlocks(content);
+    }
 
+    message.appendChild(content);
 
-    const toolbar =
-      document.createElement(
-        "div"
-      );
+    const toolbar = document.createElement("div");
+    toolbar.className = "message-toolbar";
 
+    toolbar.appendChild(createMessageAction("Copy", "copy", () => copyMessage(record.content)));
+    toolbar.appendChild(createMessageAction("Retry", "retry", () => retryMessage(index)));
+    toolbar.appendChild(createMessageAction("Delete", "delete", () => deleteMessage(record.id)));
 
-    toolbar.className =
-      "message-toolbar";
-
-
-    /*
-     * COPY
-     */
-
-    toolbar.appendChild(
-      createMessageAction(
-        "Copy",
-        "copy",
-        () =>
-          copyMessage(
-            record.content
-          )
-      )
-    );
-
-
-    /*
-     * RETRY
-     */
-
-    toolbar.appendChild(
-      createMessageAction(
-        "Retry",
-        "retry",
-        () =>
-          retryMessage(
-            index
-          )
-      )
-    );
-
-
-    /*
-     * DELETE
-     */
-
-    toolbar.appendChild(
-      createMessageAction(
-        "Delete",
-        "delete",
-        () =>
-          deleteMessage(
-            record.id
-          )
-      )
-    );
-
-
-    message.appendChild(
-      toolbar
-    );
-
-
-    container.appendChild(
-      message
-    );
-
-
-    row.appendChild(
-      container
-    );
-
+    message.appendChild(toolbar);
+    container.appendChild(message);
+    row.appendChild(container);
 
     return row;
   }
 
+  /* =========================================================
+     EMPTY STATE / SUGGESTIONS
+  ========================================================= */
+
+  const SUGGESTIONS = [
+    { text: "Explain a programming concept to me", icon: `<path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/>` },
+    { text: "Review my code for bugs and style issues", icon: `<path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/>` },
+    { text: "Search the web for something", icon: `<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>` },
+    { text: "Help me plan a project", icon: `<path d="M9 11H3v9h6z"/><path d="M21 5h-6v15h6z"/><path d="M15 3H9v18h6z"/>` }
+  ];
+
+  function renderEmptyState() {
+
+    const empty = document.createElement("div");
+    empty.className = "empty-state";
+
+    const heading = document.createElement("h1");
+    heading.textContent = "What are you working on?";
+
+    const sub = document.createElement("p");
+    sub.textContent = "Ask a question, explain a problem, or start building something.";
+
+    const grid = document.createElement("div");
+    grid.className = "suggestion-grid";
+
+    SUGGESTIONS.forEach(suggestion => {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "suggestion-chip";
+      chip.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${suggestion.icon}</svg>
+        <span>${suggestion.text}</span>
+      `;
+
+      chip.addEventListener("click", () => {
+        userInput.value = suggestion.text;
+        resizeInput();
+        updateSendButton();
+        userInput.focus();
+      });
+
+      grid.appendChild(chip);
+    });
+
+    empty.appendChild(heading);
+    empty.appendChild(sub);
+    empty.appendChild(grid);
+
+    return empty;
+  }
 
   /* =========================================================
      RENDER ALL MESSAGES
@@ -3791,111 +1976,62 @@
 
   function renderMessages() {
 
-    messagesEl.innerHTML =
-      "";
+    messagesEl.innerHTML = "";
 
-
-    if (
-      messageRecords.length ===
-      0
-    ) {
-
-      const empty =
-        document.createElement(
-          "div"
-        );
-
-
-      empty.className =
-        "empty-state";
-
-
-      empty.innerHTML = `
-        <h1>
-          What can I help you with?
-        </h1>
-
-        <p>
-          Start a conversation, ask a question,
-          write code, or search the web.
-        </p>
-      `;
-
-
-      messagesEl.appendChild(
-        empty
-      );
-
-
+    if (messageRecords.length === 0) {
+      messagesEl.appendChild(renderEmptyState());
       return;
     }
 
+    messageRecords.forEach((record, index) => {
+      messagesEl.appendChild(renderMessage(record, index));
+    });
 
-    messageRecords.forEach(
-      (
-        record,
-        index
-      ) => {
-
-        messagesEl.appendChild(
-          renderMessage(
-            record,
-            index
-          )
-        );
-      }
-    );
-
-
-    scrollToBottom();
+    userNearBottom = true;
+    scrollToBottom(true);
   }
-
 
   /* =========================================================
      SCROLL
   ========================================================= */
 
-  function scrollToBottom() {
-
-    requestAnimationFrame(
-      () => {
-
-        messagesEl.scrollTop =
-          messagesEl.scrollHeight;
-      }
-    );
+  function isNearBottom() {
+    const threshold = 120;
+    return messagesEl.scrollHeight - messagesEl.scrollTop - messagesEl.clientHeight < threshold;
   }
 
+  function scrollToBottom(force = false) {
+    if (!force && !userNearBottom) { return; }
+
+    requestAnimationFrame(() => {
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    });
+  }
+
+  messagesEl.addEventListener("scroll", () => {
+    userNearBottom = isNearBottom();
+    scrollBottomBtn.classList.toggle("visible", !userNearBottom && messageRecords.length > 0);
+  });
+
+  scrollBottomBtn.addEventListener("click", () => {
+    userNearBottom = true;
+    scrollToBottom(true);
+    scrollBottomBtn.classList.remove("visible");
+  });
 
   /* =========================================================
      COMPOSER
   ========================================================= */
 
   function resizeInput() {
-
-    userInput.style.height =
-      "auto";
-
-
-    userInput.style.height =
-      Math.min(
-        userInput.scrollHeight,
-        180
-      ) +
-      "px";
+    userInput.style.height = "auto";
+    userInput.style.height = Math.min(userInput.scrollHeight, 200) + "px";
   }
 
-
-  userInput.addEventListener(
-    "input",
-    () => {
-
-      resizeInput();
-
-      updateSendButton();
-    }
-  );
-
+  userInput.addEventListener("input", () => {
+    resizeInput();
+    updateSendButton();
+  });
 
   /* =========================================================
      BUTTON STATE
@@ -3903,208 +2039,72 @@
 
   function updateSendButton() {
 
-    if (
-      isGenerating
-    ) {
+    if (isGenerating) {
+      sendBtn.disabled = false;
+      sendBtn.classList.add("stop");
+      sendBtn.title = "Stop generation";
+      sendBtn.setAttribute("aria-label", "Stop generation");
 
-      sendBtn.disabled =
-        false;
-
-      sendBtn.classList.add(
-        "stop"
-      );
-
-      sendBtn.title =
-        "Stop generation";
-
-      sendBtn.setAttribute(
-        "aria-label",
-        "Stop generation"
-      );
-
-
-      sendIcon.innerHTML = `
-        <rect
-          x="7"
-          y="7"
-          width="10"
-          height="10"
-          rx="2"
-        />
-      `;
-
+      sendIcon.innerHTML = `<rect x="7" y="7" width="10" height="10" rx="2"/>`;
 
       return;
     }
 
-
-    sendBtn.disabled =
-      !userInput.value.trim();
-
-
-    sendBtn.classList.remove(
-      "stop"
-    );
-
-
-    sendBtn.title =
-      "Send message";
-
-    sendBtn.setAttribute(
-      "aria-label",
-      "Send message"
-    );
-
+    sendBtn.disabled = !userInput.value.trim();
+    sendBtn.classList.remove("stop");
+    sendBtn.title = "Send message";
+    sendBtn.setAttribute("aria-label", "Send message");
 
     sendIcon.innerHTML = `
       <path d="M22 2 11 13"/>
-
-      <path
-        d="
-          m22 2-7 20
-          -4-9
-          -9-4
-          20-7z
-        "
-      />
+      <path d="m22 2-7 20-4-9-9-4 20-7z"/>
     `;
   }
-
 
   /* =========================================================
      WEB SEARCH
   ========================================================= */
 
-  webSearchBtn.addEventListener(
-    "click",
-    () => {
+  webSearchBtn.addEventListener("click", () => {
+    webSearchEnabled = !webSearchEnabled;
 
-      webSearchEnabled =
-        !webSearchEnabled;
+    webSearchBtn.classList.toggle("active", webSearchEnabled);
+    searchStatus.classList.toggle("active", webSearchEnabled);
+    currentTabSearch.hidden = !webSearchEnabled;
 
-
-      webSearchBtn.classList.toggle(
-        "active",
-        webSearchEnabled
-      );
-
-
-      searchStatus.classList.toggle(
-        "active",
-        webSearchEnabled
-      );
-
-
-      searchStatus.textContent =
-        webSearchEnabled
-          ? "Web search on"
-          : "Web search off";
-    }
-  );
-
+    searchStatus.textContent = webSearchEnabled ? "Web search on" : "Web search off";
+  });
 
   /* =========================================================
      NEW CHAT
   ========================================================= */
 
-  newChatBtn.addEventListener(
-    "click",
-    async () => {
+  newChatBtn.addEventListener("click", async () => {
+    if (isGenerating) { stopGeneration(); }
 
-      if (
-        isGenerating
-      ) {
+    const chat = await createChat("New chat");
 
-        stopGeneration();
-      }
-
-
-      const chat =
-        await createChat(
-          "New chat"
-        );
-
-
-      if (
-        chat
-      ) {
-
-        userInput.focus();
-      }
+    if (chat) {
+      closeSidebar();
+      userInput.focus();
     }
-  );
-
-
-  /* =========================================================
-     CLOSE ACTIVE CHAT
-  ========================================================= */
-
-  function closeCurrentChat() {
-
-    if (
-      isGenerating
-    ) {
-
-      stopGeneration();
-    }
-
-
-    currentChat =
-      null;
-
-    messageRecords =
-      [];
-
-
-    localStorage.removeItem(
-      CHAT_STORAGE_KEY
-    );
-
-
-    updateCurrentTab();
-
-    renderMessages();
-
-    userInput.focus();
-  }
-
+  });
 
   /* =========================================================
      RETRY MESSAGE
   ========================================================= */
 
-  async function retryMessage(
-    index
-  ) {
+  async function retryMessage(index) {
 
-    if (
-      isGenerating
-    ) {
-
-      showToast(
-        "Please wait for the current response."
-      );
-
+    if (isGenerating) {
+      showToast("Please wait for the current response.");
       return;
     }
 
+    if (!currentChat) { return; }
 
-    if (
-      !currentChat
-    ) {
-
-      return;
-    }
-
-
-    const selected =
-      messageRecords[index];
-
-
-    if (!selected) {
-      return;
-    }
-
+    const selected = messageRecords[index];
+    if (!selected) { return; }
 
     /*
      * Find the user message that should
@@ -4117,52 +2117,23 @@
      * uses that message itself.
      */
 
-    let userIndex =
-      index;
+    let userIndex = index;
 
-
-    if (
-      selected.role ===
-      "assistant"
-    ) {
-
-      for (
-        let i = index - 1;
-        i >= 0;
-        i--
-      ) {
-
-        if (
-          messageRecords[i].role ===
-          "user"
-        ) {
-
-          userIndex =
-            i;
-
+    if (selected.role === "assistant") {
+      for (let i = index - 1; i >= 0; i--) {
+        if (messageRecords[i].role === "user") {
+          userIndex = i;
           break;
         }
       }
     }
 
+    const userMessage = messageRecords[userIndex];
 
-    const userMessage =
-      messageRecords[userIndex];
-
-
-    if (
-      !userMessage ||
-      userMessage.role !==
-        "user"
-    ) {
-
-      showToast(
-        "Could not find the user message to retry."
-      );
-
+    if (!userMessage || userMessage.role !== "user") {
+      showToast("Could not find the user message to retry.");
       return;
     }
-
 
     /*
      * Remove all messages after the
@@ -4171,66 +2142,27 @@
      * The user's original message remains.
      */
 
-    const idsToDelete =
-      messageRecords
-        .slice(
-          userIndex + 1
-        )
-        .map(
-          message =>
-            message.id
-        );
+    const idsToDelete = messageRecords.slice(userIndex + 1).map(message => message.id);
 
-
-    if (
-      idsToDelete.length > 0
-    ) {
-
-      const {
-        error
-      } =
-        await supabaseClient
-          .from("messages")
-          .delete()
-          .in(
-            "id",
-            idsToDelete
-          )
-          .eq(
-            "chat_id",
-            currentChat.id
-          );
-
+    if (idsToDelete.length > 0) {
+      const { error } = await supabaseClient
+        .from("messages")
+        .delete()
+        .in("id", idsToDelete)
+        .eq("chat_id", currentChat.id);
 
       if (error) {
-
-        console.error(
-          "Retry cleanup:",
-          error
-        );
-
-        showToast(
-          error.message ||
-            "Could not prepare retry."
-        );
-
+        console.error("Retry cleanup:", error);
+        showToast(error.message || "Could not prepare retry.");
         return;
       }
     }
 
-
-    messageRecords =
-      messageRecords.slice(
-        0,
-        userIndex + 1
-      );
-
+    messageRecords = messageRecords.slice(0, userIndex + 1);
 
     renderMessages();
 
-
     await touchChat();
-
 
     /*
      * Generate without inserting
@@ -4238,10 +2170,7 @@
      */
 
     await generateResponse();
-
-
   }
-
 
   /* =========================================================
      BUILD WORKER MESSAGES
@@ -4250,24 +2179,9 @@
   function buildWorkerMessages() {
 
     return messageRecords
-      .filter(
-        message =>
-          message.role ===
-            "user" ||
-          message.role ===
-            "assistant"
-      )
-      .map(
-        message => ({
-          role:
-            message.role,
-
-          content:
-            message.content
-        })
-      );
+      .filter(message => message.role === "user" || message.role === "assistant")
+      .map(message => ({ role: message.role, content: message.content }));
   }
-
 
   /* =========================================================
      CREATE STREAMING MESSAGE
@@ -4275,307 +2189,122 @@
 
   function createStreamingMessage() {
 
-    const row =
-      document.createElement(
-        "div"
-      );
+    const row = document.createElement("div");
+    row.className = "message-row";
 
+    const container = document.createElement("div");
+    container.className = "message-container";
 
-    row.className =
-      "message-row";
+    const message = document.createElement("article");
+    message.className = "message ai";
 
+    const roleLabel = document.createElement("div");
+    roleLabel.className = "role-label";
+    roleLabel.innerHTML = `<span class="role-dot"></span>Assistant`;
+    message.appendChild(roleLabel);
 
-    const container =
-      document.createElement(
-        "div"
-      );
+    const content = document.createElement("div");
+    content.className = "message-content";
 
-
-    container.className =
-      "message-container";
-
-
-    const message =
-      document.createElement(
-        "article"
-      );
-
-
-    message.className =
-      "message ai";
-
-
-    const content =
-      document.createElement(
-        "div"
-      );
-
-
-    content.className =
-      "message-content";
-
-
-    const typing =
-      document.createElement(
-        "div"
-      );
-
-
-    typing.className =
-      "typing";
-
-
+    const typing = document.createElement("div");
+    typing.className = "typing";
     typing.innerHTML = `
       <span class="typing-dot"></span>
       <span class="typing-dot"></span>
       <span class="typing-dot"></span>
     `;
 
+    content.appendChild(typing);
+    message.appendChild(content);
+    container.appendChild(message);
+    row.appendChild(container);
 
-    content.appendChild(
-      typing
-    );
+    messagesEl.appendChild(row);
 
+    scrollToBottom(true);
 
-    message.appendChild(
-      content
-    );
-
-
-    container.appendChild(
-      message
-    );
-
-
-    row.appendChild(
-      container
-    );
-
-
-    messagesEl.appendChild(
-      row
-    );
-
-
-    scrollToBottom();
-
-
-    return {
-      row,
-      content
-    };
+    return { row, content };
   }
-
 
   /* =========================================================
      STREAM READER
   ========================================================= */
 
-  async function readStream(
-    response,
-    contentElement
-  ) {
+  async function readStream(response, contentElement) {
 
-    if (
-      !response.body
-    ) {
-
-      throw new Error(
-        "The Worker did not return a stream."
-      );
+    if (!response.body) {
+      throw new Error("The Worker did not return a stream.");
     }
 
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
 
-    const reader =
-      response.body
-        .getReader();
-
-
-    const decoder =
-      new TextDecoder(
-        "utf-8"
-      );
-
-
-    let buffer =
-      "";
-
-    let answer =
-      "";
-
+    let buffer = "";
+    let answer = "";
 
     while (true) {
 
-      const {
-        value,
-        done
-      } =
-        await reader.read();
+      const { value, done } = await reader.read();
+      if (done) { break; }
 
+      buffer += decoder.decode(value, { stream: true });
 
-      if (done) {
-        break;
-      }
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
 
+      for (const rawLine of lines) {
 
-      buffer +=
-        decoder.decode(
-          value,
-          {
-            stream:
-              true
-          }
-        );
+        const line = rawLine.trim();
+        if (!line.startsWith("data:")) { continue; }
 
-
-      const lines =
-        buffer.split(
-          "\n"
-        );
-
-
-      buffer =
-        lines.pop() ||
-        "";
-
-
-      for (
-        const rawLine
-        of lines
-      ) {
-
-        const line =
-          rawLine.trim();
-
-
-        if (
-          !line.startsWith(
-            "data:"
-          )
-        ) {
-
-          continue;
-        }
-
-
-        const payload =
-          line
-            .slice(5)
-            .trim();
-
-
-        if (
-          payload ===
-          "[DONE]"
-        ) {
-
-          continue;
-        }
-
+        const payload = line.slice(5).trim();
+        if (payload === "[DONE]") { continue; }
 
         let parsed;
 
-
         try {
-
-          parsed =
-            JSON.parse(
-              payload
-            );
-
+          parsed = JSON.parse(payload);
         } catch {
-
           continue;
         }
 
+        const delta = parsed?.choices?.[0]?.delta?.content;
+        if (typeof delta !== "string") { continue; }
 
-        const delta =
-          parsed
-            ?.choices?.[0]
-            ?.delta
-            ?.content;
+        answer += delta;
 
-
-        if (
-          typeof delta !==
-          "string"
-        ) {
-
-          continue;
-        }
-
-
-        answer +=
-          delta;
-
-
-        contentElement.innerHTML =
-          renderMarkdown(
-            answer
-          );
-
-
-        enhanceCodeBlocks(
-          contentElement
-        );
-
+        contentElement.innerHTML = renderMarkdown(answer);
+        enhanceCodeBlocks(contentElement);
 
         scrollToBottom();
       }
     }
 
-
     return answer;
   }
-
 
   /* =========================================================
      CALL WORKER
   ========================================================= */
 
-  async function callWorker(
-    session
-  ) {
+  async function callWorker(session) {
 
-    return fetch(
-      WORKER_URL,
-      {
-        method:
-          "POST",
-
-        headers: {
-          "Content-Type":
-            "application/json",
-
-          "Authorization":
-            `Bearer ${session.access_token}`
-        },
-
-        signal:
-          controller.signal,
-
-        body:
-          JSON.stringify({
-
-            messages:
-              buildWorkerMessages(),
-
-            web_search:
-              webSearchEnabled,
-
-            temperature:
-              0.7,
-
-            max_tokens:
-              4096,
-
-            stream:
-              true
-          })
-      }
-    );
+    return fetch(WORKER_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${session.access_token}`
+      },
+      signal: controller.signal,
+      body: JSON.stringify({
+        messages: buildWorkerMessages(),
+        web_search: webSearchEnabled,
+        temperature: 0.7,
+        max_tokens: 4096,
+        stream: true
+      })
+    });
   }
-
 
   /* =========================================================
      GENERATE RESPONSE
@@ -4583,27 +2312,14 @@
 
   async function generateResponse() {
 
-    if (
-      !currentChat
-    ) {
+    if (!currentChat) { return; }
 
-      return;
-    }
-
-
-    isGenerating =
-      true;
-
-    controller =
-      new AbortController();
-
+    isGenerating = true;
+    controller = new AbortController();
 
     updateSendButton();
 
-
-    const streamMessage =
-      createStreamingMessage();
-
+    const streamMessage = createStreamingMessage();
 
     try {
 
@@ -4612,112 +2328,51 @@
        * always use a refreshed session.
        */
 
-      let session =
-        await ensureFreshSession();
+      let session = await ensureFreshSession();
+      if (!session) { return; }
 
-
-      if (!session) {
-        return;
-      }
-
-
-      let response =
-        await callWorker(
-          session
-        );
-
+      let response = await callWorker(session);
 
       /*
        * If the Worker still returns 401,
        * refresh again and retry exactly once.
        */
 
-      if (
-        response.status ===
-        401
-      ) {
+      if (response.status === 401) {
+        showToast("Refreshing session...");
 
-        showToast(
-          "Refreshing session..."
-        );
+        session = await ensureFreshSession();
+        if (!session) { return; }
 
-
-        session =
-          await ensureFreshSession();
-
-
-        if (!session) {
-          return;
-        }
-
-
-        response =
-          await callWorker(
-            session
-          );
+        response = await callWorker(session);
       }
 
+      if (!response.ok) {
 
-      if (
-        !response.ok
-      ) {
-
-        let errorMessage =
-          `Request failed (${response.status}).`;
-
+        let errorMessage = `Request failed (${response.status}).`;
 
         try {
+          const errorData = await response.json();
 
-          const errorData =
-            await response.json();
-
-
-          if (
-            typeof errorData.error ===
-              "string"
-          ) {
-
-            errorMessage =
-              errorData.error;
-
-          } else if (
-            errorData?.error?.message
-          ) {
-
-            errorMessage =
-              errorData.error.message;
+          if (typeof errorData.error === "string") {
+            errorMessage = errorData.error;
+          } else if (errorData?.error?.message) {
+            errorMessage = errorData.error.message;
           }
-
         } catch {
-
           /*
            * Ignore malformed error bodies.
            */
         }
 
-
-        throw new Error(
-          errorMessage
-        );
+        throw new Error(errorMessage);
       }
 
+      const answer = await readStream(response, streamMessage.content);
 
-      const answer =
-        await readStream(
-          response,
-          streamMessage.content
-        );
-
-
-      if (
-        !answer.trim()
-      ) {
-
-        throw new Error(
-          "The AI returned an empty response."
-        );
+      if (!answer.trim()) {
+        throw new Error("The AI returned an empty response.");
       }
-
 
       /*
        * Remove the temporary streamed row
@@ -4727,66 +2382,33 @@
 
       streamMessage.row.remove();
 
-
-      await saveMessage(
-        "assistant",
-        answer
-      );
-
-
+      await saveMessage("assistant", answer);
       await touchChat();
 
-
       renderMessages();
-
-
       await loadChats();
-
 
     } catch (error) {
 
       streamMessage.row.remove();
 
-
-      if (
-        error.name ===
-        "AbortError"
-      ) {
-
-        showToast(
-          "Generation stopped."
-        );
-
+      if (error.name === "AbortError") {
+        showToast("Generation stopped.");
         return;
       }
 
-
-      console.error(
-        "AI request failed:",
-        error
-      );
-
-
-      showToast(
-        error.message ||
-          "Something went wrong."
-      );
+      console.error("AI request failed:", error);
+      showToast(error.message || "Something went wrong.");
 
     } finally {
 
-      isGenerating =
-        false;
-
-      controller =
-        null;
-
+      isGenerating = false;
+      controller = null;
 
       updateSendButton();
-
       userInput.focus();
     }
   }
-
 
   /* =========================================================
      SEND MESSAGE
@@ -4794,48 +2416,23 @@
 
   async function sendMessage() {
 
-    if (
-      isGenerating
-    ) {
-
+    if (isGenerating) {
       stopGeneration();
-
       return;
     }
 
+    const text = userInput.value.trim();
+    if (!text) { return; }
 
-    const text =
-      userInput.value.trim();
-
-
-    if (!text) {
+    if (!isConfigured()) {
+      showToast("Configure Supabase and the Worker URL first.");
       return;
     }
 
-
-    if (
-      !isConfigured()
-    ) {
-
-      showToast(
-        "Configure Supabase and the Worker URL first."
-      );
-
+    if (!currentUser) {
+      showToast("Please sign in again.");
       return;
     }
-
-
-    if (
-      !currentUser
-    ) {
-
-      showToast(
-        "Please sign in again."
-      );
-
-      return;
-    }
-
 
     /*
      * Create the chat only when
@@ -4843,70 +2440,36 @@
      */
 
     if (!currentChat) {
-
-      currentChat =
-        await createChat(
-          makeChatTitle(
-            text
-          )
-        );
-
-
-      if (!currentChat) {
-        return;
-      }
+      currentChat = await createChat(makeChatTitle(text));
+      if (!currentChat) { return; }
     }
-
 
     /*
      * Give the chat a useful title.
      */
 
-    if (
-      currentChat.title ===
-      "New chat"
-    ) {
-
-      await updateChatTitle(
-        makeChatTitle(
-          text
-        )
-      );
+    if (currentChat.title === "New chat") {
+      await updateChatTitle(makeChatTitle(text));
     }
 
-
-    userInput.value =
-      "";
-
+    userInput.value = "";
     resizeInput();
-
 
     /*
      * Add user message locally.
      */
 
-    const userMessage =
-      await saveMessage(
-        "user",
-        text
-      );
-
+    const userMessage = await saveMessage("user", text);
 
     if (!userMessage) {
-
-      showToast(
-        "Could not save your message."
-      );
-
+      showToast("Could not save your message.");
       return;
     }
 
-
     await touchChat();
 
-
+    userNearBottom = true;
     renderMessages();
-
 
     /*
      * Generate response.
@@ -4915,67 +2478,35 @@
     await generateResponse();
   }
 
-
   /* =========================================================
      STOP
   ========================================================= */
 
   function stopGeneration() {
 
-    if (
-      controller
-    ) {
-
+    if (controller) {
       controller.abort();
     }
 
-
-    controller =
-      null;
-
-    isGenerating =
-      false;
-
+    controller = null;
+    isGenerating = false;
 
     updateSendButton();
-
     userInput.focus();
   }
-
 
   /* =========================================================
      EVENTS
   ========================================================= */
 
-  sendBtn.addEventListener(
-    "click",
-    sendMessage
-  );
+  sendBtn.addEventListener("click", sendMessage);
 
-
-  userInput.addEventListener(
-    "keydown",
-    event => {
-
-      if (
-        event.key ===
-          "Enter" &&
-        !event.shiftKey
-      ) {
-
-        event.preventDefault();
-
-
-        if (
-          !isGenerating
-        ) {
-
-          sendMessage();
-        }
-      }
+  userInput.addEventListener("keydown", event => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      if (!isGenerating) { sendMessage(); }
     }
-  );
-
+  });
 
   /* =========================================================
      INITIALIZE
@@ -4983,81 +2514,33 @@
 
   async function initialize() {
 
-    if (
-      !isConfigured()
-    ) {
-
-      showToast(
-        "Set your Supabase and Worker configuration."
-      );
-
+    if (!isConfigured()) {
+      showToast("Set your Supabase and Worker configuration.");
       return;
     }
 
-
-    const authenticated =
-      await initializeAuth();
-
-
-    if (
-      !authenticated
-    ) {
-
-      return;
-    }
-
+    const authenticated = await initializeAuth();
+    if (!authenticated) { return; }
 
     renderUser();
 
+    const chats = await loadChats();
 
-    const chats =
-      await loadChats();
+    const savedChatId = localStorage.getItem(CHAT_STORAGE_KEY);
 
+    let chatToOpen = null;
 
-    const savedChatId =
-      localStorage.getItem(
-        CHAT_STORAGE_KEY
-      );
-
-
-    let chatToOpen =
-      null;
-
-
-    if (
-      savedChatId &&
-      chats.some(
-        chat =>
-          chat.id ===
-          savedChatId
-      )
-    ) {
-
-      chatToOpen =
-        savedChatId;
-
-    } else if (
-      chats.length > 0
-    ) {
-
-      chatToOpen =
-        chats[0].id;
+    if (savedChatId && chats.some(chat => chat.id === savedChatId)) {
+      chatToOpen = savedChatId;
+    } else if (chats.length > 0) {
+      chatToOpen = chats[0].id;
     }
 
-
-    if (
-      chatToOpen
-    ) {
-
-      await openChat(
-        chatToOpen
-      );
-
+    if (chatToOpen) {
+      await openChat(chatToOpen);
     } else {
-
       renderMessages();
     }
-
 
     updateCurrentTab();
     updateSendButton();
@@ -5065,7 +2548,6 @@
 
     userInput.focus();
   }
-
 
   initialize();
 
