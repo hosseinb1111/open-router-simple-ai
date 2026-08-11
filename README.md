@@ -43,8 +43,8 @@ External libraries are loaded through CDN links.
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git
-cd YOUR_REPOSITORY
+git clone https://github.com/hosseinb1111/open-router-simple-ai.git
+cd open-router-simple-ai
 ```
 
 Or download the repository as a ZIP file and extract it.
