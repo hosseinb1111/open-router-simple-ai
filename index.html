@@ -1,14 +1,8 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png"> <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="shortcut icon" href="favicon.ico">
-
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-
-<link rel="manifest" href="site.webmanifest">
   <meta charset="UTF-8">
+
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0"
@@ -26,13 +20,55 @@
     content="#313338"
   >
 
+  <!-- Favicons -->
   <link
     rel="icon"
-    href="favicon.ico"
-    type="image/x-icon"
+    type="image/svg+xml"
+    href="favicon.svg"
   >
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="96x96"
+    href="favicon-96x96.png"
+  >
+
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="32x32"
+    href="favicon-32x32.png"
+  >
+
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="16x16"
+    href="favicon-16x16.png"
+  >
+
+  <link
+    rel="shortcut icon"
+    href="favicon.ico"
+  >
+
+  <link
+    rel="apple-touch-icon"
+    sizes="180x180"
+    href="apple-touch-icon.png"
+  >
+
+  <link
+    rel="manifest"
+    href="site.webmanifest"
+  >
+
+  <!-- Supabase -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  ></script>
+
 
   <style>
     :root {
@@ -56,16 +92,19 @@
         0 18px 55px rgba(0, 0, 0, 0.28);
     }
 
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
 
+
     html,
     body {
       min-height: 100%;
     }
+
 
     body {
       min-height: 100vh;
@@ -85,14 +124,19 @@
         Arial,
         sans-serif;
 
-      background: var(--bg);
-      color: var(--text);
+      background:
+        var(--bg);
+
+      color:
+        var(--text);
     }
+
 
     button {
       font: inherit;
       border: 0;
     }
+
 
     .card {
       width: 100%;
@@ -112,16 +156,21 @@
         var(--shadow);
     }
 
+
     .status {
       display: inline-flex;
       align-items: center;
+
       gap: 7px;
 
       margin-bottom: 18px;
 
-      color: var(--text-muted);
+      color:
+        var(--text-muted);
+
       font-size: 11px;
     }
+
 
     .status-dot {
       width: 7px;
@@ -129,25 +178,37 @@
 
       border-radius: 50%;
 
-      background: var(--success);
+      background:
+        var(--success);
     }
+
 
     h1 {
       font-size: 27px;
       line-height: 1.2;
-      letter-spacing: -0.6px;
 
-      margin-bottom: 10px;
+      letter-spacing:
+        -0.6px;
+
+      margin-bottom:
+        10px;
     }
+
 
     .description {
-      color: var(--text-secondary);
+      color:
+        var(--text-secondary);
 
-      font-size: 14px;
-      line-height: 1.65;
+      font-size:
+        14px;
 
-      margin-bottom: 28px;
+      line-height:
+        1.65;
+
+      margin-bottom:
+        28px;
     }
+
 
     .google-button {
       width: 100%;
@@ -159,15 +220,23 @@
 
       gap: 10px;
 
-      border-radius: 7px;
+      border-radius:
+        7px;
 
-      background: #ffffff;
-      color: #1f1f1f;
+      background:
+        #ffffff;
 
-      font-size: 14px;
-      font-weight: 600;
+      color:
+        #1f1f1f;
 
-      cursor: pointer;
+      font-size:
+        14px;
+
+      font-weight:
+        600;
+
+      cursor:
+        pointer;
 
       transition:
         background 0.15s ease,
@@ -175,58 +244,108 @@
         opacity 0.15s ease;
     }
 
+
     .google-button:hover {
-      background: #f1f1f1;
+      background:
+        #f1f1f1;
     }
+
 
     .google-button:active {
-      transform: translateY(1px);
+      transform:
+        translateY(1px);
     }
+
 
     .google-button:disabled {
-      opacity: 0.6;
-      cursor: wait;
+      opacity:
+        0.6;
+
+      cursor:
+        wait;
     }
+
 
     .google-icon {
-      width: 18px;
-      height: 18px;
-      flex-shrink: 0;
+      width:
+        18px;
+
+      height:
+        18px;
+
+      flex-shrink:
+        0;
     }
+
 
     .message {
-      min-height: 20px;
+      min-height:
+        20px;
 
-      margin-top: 14px;
+      margin-top:
+        14px;
 
-      color: var(--danger);
+      color:
+        var(--danger);
 
-      font-size: 12px;
-      line-height: 1.5;
+      font-size:
+        12px;
+
+      line-height:
+        1.5;
     }
+
 
     .message.info {
-      color: var(--text-secondary);
+      color:
+        var(--text-secondary);
     }
+
 
     .footer {
-      margin-top: 26px;
+      margin-top:
+        26px;
 
-      color: var(--text-muted);
+      color:
+        var(--text-muted);
 
-      font-size: 10px;
+      font-size:
+        10px;
 
-      text-align: center;
-      line-height: 1.5;
+      text-align:
+        center;
+
+      line-height:
+        1.5;
     }
 
+
     @media (max-width: 480px) {
+
       .card {
-        padding: 27px 22px;
+        padding:
+          27px 22px;
       }
+
+    }
+
+
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation-duration:
+          0.01ms !important;
+
+        transition-duration:
+          0.01ms !important;
+      }
+
     }
   </style>
 </head>
+
 
 <body>
 
@@ -237,52 +356,67 @@
       Free AI is online
     </div>
 
+
     <h1>
       Welcome to Free AI
     </h1>
+
 
     <p class="description">
       Sign in with Google to keep your conversations
       saved and available across your devices.
     </p>
 
+
     <button
       id="googleButton"
       class="google-button"
       type="button"
     >
+
       <svg
         class="google-icon"
         viewBox="0 0 24 24"
         aria-hidden="true"
       >
+
         <path
           fill="#4285F4"
           d="M21.35 12.18c0-.72-.06-1.41-.18-2.08H12v3.94h5.24a4.48 4.48 0 0 1-1.95 2.94v2.45h3.15c1.84-1.7 2.91-4.2 2.91-7.25Z"
         />
+
         <path
           fill="#34A853"
           d="M12 21.5c2.63 0 4.84-.87 6.45-2.36l-3.15-2.45c-.87.58-1.98.92-3.3.92-2.54 0-4.69-1.72-5.46-4.03H3.28v2.52A9.73 9.73 0 0 0 12 21.5Z"
         />
+
         <path
           fill="#FBBC05"
           d="M6.54 13.58A5.84 5.84 0 0 1 6.23 12c0-.55.11-1.09.31-1.58V7.9H3.28A9.75 9.75 0 0 0 2.25 12c0 1.57.38 3.05 1.03 4.1l3.26-2.52Z"
         />
+
         <path
           fill="#EA4335"
           d="M12 6.39c1.43 0 2.71.49 3.72 1.45l2.8-2.79C16.83 3.48 14.63 2.5 12 2.5a9.73 9.73 0 0 0-8.72 5.4l3.26 2.52C7.31 8.11 9.46 6.39 12 6.39Z"
         />
+
       </svg>
+
 
       <span id="googleButtonText">
         Continue with Google
       </span>
+
     </button>
+
 
     <div
       id="message"
       class="message"
+      role="status"
+      aria-live="polite"
     ></div>
+
 
     <div class="footer">
       Sign-in is handled securely by Supabase Auth.
@@ -302,7 +436,15 @@
     const SUPABASE_PUBLISHABLE_KEY =
       "sb_publishable_YlFSX-js_1YUsqGxc4BeHQ_bhmlE5Le";
 
-
+    /*
+     * Keep this relative so the same code works for:
+     *
+     * GitHub Pages:
+     * /open-router-simple-ai/chat.html
+     *
+     * Local development:
+     * /chat.html
+     */
     const CHAT_URL =
       "./chat.html";
 
@@ -317,9 +459,14 @@
         SUPABASE_PUBLISHABLE_KEY,
         {
           auth: {
-            persistSession: true,
-            autoRefreshToken: true,
-            detectSessionInUrl: true
+            persistSession:
+              true,
+
+            autoRefreshToken:
+              true,
+
+            detectSessionInUrl:
+              true
           }
         }
       );
@@ -353,6 +500,7 @@
       message,
       type = "error"
     ) {
+
       messageEl.textContent =
         message;
 
@@ -366,6 +514,7 @@
     function setButtonLoading(
       loading
     ) {
+
       googleButton.disabled =
         loading;
 
@@ -376,39 +525,64 @@
     }
 
 
+    function goToChat() {
+
+      window.location.replace(
+        new URL(
+          CHAT_URL,
+          window.location.href
+        ).href
+      );
+    }
+
+
     /* =====================================================
        SESSION CHECK
     ===================================================== */
 
     async function checkExistingSession() {
 
-      const {
-        data,
-        error
-      } =
-        await supabaseClient.auth
-          .getSession();
+      try {
+
+        /*
+         * Supabase automatically restores
+         * the persisted session here.
+         */
+
+        const {
+          data,
+          error
+        } =
+          await supabaseClient.auth
+            .getSession();
 
 
-      if (error) {
+        if (error) {
+
+          console.error(
+            "Session check failed:",
+            error
+          );
+
+          return;
+        }
+
+
+        if (
+          data?.session
+        ) {
+
+          goToChat();
+
+        }
+
+      } catch (error) {
 
         console.error(
-          "Session check failed:",
+          "Unexpected session error:",
           error
         );
 
-        return;
-      }
-
-
-      if (
-        data &&
-        data.session
-      ) {
-
-        window.location.replace(
-          CHAT_URL
-        );
       }
     }
 
@@ -424,12 +598,19 @@
         "info"
       );
 
+
       setButtonLoading(
         true
       );
 
 
       try {
+
+        /*
+         * Resolve ./chat.html against the
+         * current page, so this works both
+         * on localhost and GitHub Pages.
+         */
 
         const redirectTo =
           new URL(
@@ -439,20 +620,50 @@
 
 
         const {
+          data,
           error
         } =
           await supabaseClient.auth
             .signInWithOAuth({
-              provider: "google",
+
+              provider:
+                "google",
 
               options: {
-                redirectTo
+
+                redirectTo,
+
+                queryParams: {
+                  access_type:
+                    "offline",
+
+                  prompt:
+                    "select_account"
+                }
+
               }
+
             });
 
 
         if (error) {
           throw error;
+        }
+
+
+        /*
+         * With OAuth, Supabase normally
+         * redirects the browser automatically.
+         */
+
+        if (
+          data?.url
+        ) {
+
+          window.location.assign(
+            data.url
+          );
+
         }
 
       } catch (error) {
@@ -462,10 +673,12 @@
           error
         );
 
+
         showMessage(
-          error.message ||
+          error?.message ||
             "Could not start Google sign-in."
         );
+
 
         setButtonLoading(
           false
@@ -478,12 +691,21 @@
        AUTH STATE
     ===================================================== */
 
+    let initialSessionHandled =
+      false;
+
+
     supabaseClient.auth
       .onAuthStateChange(
         (
           event,
           session
         ) => {
+
+          /*
+           * Only redirect when there is
+           * definitely a valid session.
+           */
 
           if (
             session &&
@@ -495,10 +717,23 @@
             )
           ) {
 
-            window.location.replace(
-              CHAT_URL
-            );
+            /*
+             * Prevent duplicate navigation.
+             */
+
+            if (
+              !initialSessionHandled
+            ) {
+
+              initialSessionHandled =
+                true;
+
+              goToChat();
+
+            }
+
           }
+
         }
       );
 
@@ -518,6 +753,7 @@
     ===================================================== */
 
     checkExistingSession();
+
   </script>
 
 </body>
