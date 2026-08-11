@@ -1,118 +1,92 @@
 <!DOCTYPE html>
+
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Free AI — OpenRouter</title>
+  <title>Free AI</title>
 
-  <meta
-    name="description"
-    content="Free AI assistant powered by OpenRouter."
-  >
+<meta
+name="description"
+content="A simple AI assistant powered by OpenRouter."
 
-  <meta
-    name="theme-color"
-    content="#1e1f22"
-  >
+>
 
-  <link
-    rel="preconnect"
-    href="https://fonts.googleapis.com"
-  >
+  <meta name="theme-color" content="#313338">
 
-  <link
-    rel="preconnect"
-    href="https://fonts.gstatic.com"
-    crossorigin
-  >
+  <!-- Put favicon.ico in the root of your GitHub Pages repository -->
+
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
 
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.11/dist/purify.min.js"></script>
 
   <style>
-    /* =========================================================
-       THEME
-    ========================================================= */
-
     :root {
-      --bg: #f2f3f5;
-      --sidebar: #e3e5e8;
-      --surface: #ffffff;
-      --surface-hover: #e8eaed;
+      --background: #313338;
+      --background-secondary: #2b2d31;
+      --background-tertiary: #1e1f22;
 
-      --text: #2e3338;
-      --text-secondary: #5c626b;
-      --text-muted: #80848e;
+      --surface: #2b2d31;
+      --surface-hover: #35373c;
 
-      --border: rgba(0, 0, 0, 0.08);
-      --border-strong: rgba(0, 0, 0, 0.14);
-
-      --accent: #5865f2;
-      --accent-hover: #4752c4;
-      --accent-soft: rgba(88, 101, 242, 0.12);
-
-      --user-bubble: #5865f2;
-
-      --code-bg: #1e1f22;
-      --code-text: #dbdee1;
-
-      --danger: #ed4245;
-      --success: #23a559;
-
-      --shadow-sm:
-        0 1px 2px rgba(0, 0, 0, 0.05);
-
-      --shadow-md:
-        0 4px 16px rgba(0, 0, 0, 0.08);
-    }
-
-
-    [data-theme="dark"] {
-      --bg: #313338;
-      --sidebar: #2b2d31;
-      --surface: #313338;
-      --surface-hover: #3a3c43;
+      --input: #383a40;
 
       --text: #f2f3f5;
       --text-secondary: #b5bac1;
-      --text-muted: #949ba4;
+      --text-muted: #80848e;
 
       --border: rgba(255, 255, 255, 0.06);
-      --border-strong: rgba(255, 255, 255, 0.10);
 
       --accent: #5865f2;
       --accent-hover: #4752c4;
-      --accent-soft: rgba(88, 101, 242, 0.15);
 
-      --user-bubble: #5865f2;
+      --success: #23a559;
+      --danger: #ed4245;
+
+      --user-message: #404249;
 
       --code-bg: #1e1f22;
-      --code-text: #dbdee1;
 
-      --danger: #ed4245;
-      --success: #23a559;
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 
-      --shadow-sm:
-        0 1px 2px rgba(0, 0, 0, 0.2);
+      --radius: 8px;
+    }
 
-      --shadow-md:
-        0 4px 16px rgba(0, 0, 0, 0.25);
+    [data-theme="light"] {
+      --background: #ffffff;
+      --background-secondary: #f2f3f5;
+      --background-tertiary: #e3e5e8;
+
+      --surface: #f2f3f5;
+      --surface-hover: #e7e9eb;
+
+      --input: #ebedef;
+
+      --text: #1e1f22;
+      --text-secondary: #4e5058;
+      --text-muted: #74777e;
+
+      --border: rgba(0, 0, 0, 0.08);
+
+      --user-message: #e3e5e8;
+
+      --code-bg: #1e1f22;
+
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
     }
 
 
-    /* =========================================================
+    /* =====================================================
        RESET
-    ========================================================= */
+    ===================================================== */
 
     * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
     }
 
     html {
@@ -122,11 +96,17 @@
 
     body {
       min-height: 100%;
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        sans-serif;
 
-      font-family: "Inter", sans-serif;
-
+      background: var(--background);
       color: var(--text);
-      background: var(--bg);
 
       transition:
         background 0.2s ease,
@@ -134,7 +114,6 @@
     }
 
     button,
-    input,
     textarea {
       font: inherit;
     }
@@ -144,31 +123,27 @@
     }
 
     ::selection {
-      background: var(--accent);
-      color: white;
+      background: rgba(88, 101, 242, 0.5);
     }
 
 
-    /* =========================================================
+    /* =====================================================
        APP
-    ========================================================= */
+    ===================================================== */
 
     .app {
       min-height: 100vh;
-
       display: flex;
       flex-direction: column;
-
-      background: var(--bg);
     }
 
 
-    /* =========================================================
+    /* =====================================================
        TOP BAR
-    ========================================================= */
+    ===================================================== */
 
     .topbar {
-      height: 58px;
+      height: 56px;
       flex-shrink: 0;
 
       display: flex;
@@ -177,20 +152,18 @@
 
       padding: 0 18px;
 
-      background: var(--sidebar);
+      background: var(--background-secondary);
 
-      border-bottom:
-        1px solid var(--border);
+      border-bottom: 1px solid var(--border);
 
-      position: relative;
-      z-index: 20;
+      z-index: 10;
     }
 
     .brand {
-      min-width: 0;
-    }
+      display: flex;
+      align-items: center;
+      gap: 10px;
 
-    .brand-info {
       min-width: 0;
     }
 
@@ -198,22 +171,17 @@
       font-size: 15px;
       font-weight: 600;
 
-      line-height: 1.2;
-
       white-space: nowrap;
     }
 
     .brand-subtitle {
       display: flex;
       align-items: center;
-
       gap: 6px;
-
-      margin-top: 3px;
 
       color: var(--text-muted);
 
-      font-size: 10px;
+      font-size: 11px;
 
       white-space: nowrap;
     }
@@ -221,8 +189,6 @@
     .status-dot {
       width: 7px;
       height: 7px;
-
-      flex-shrink: 0;
 
       border-radius: 50%;
 
@@ -232,9 +198,13 @@
     .topbar-actions {
       display: flex;
       align-items: center;
-
       gap: 4px;
     }
+
+
+    /* =====================================================
+       BUTTONS
+    ===================================================== */
 
     .icon-btn {
       width: 36px;
@@ -243,10 +213,9 @@
       display: grid;
       place-items: center;
 
-      border-radius: 8px;
+      border-radius: 6px;
 
       background: transparent;
-
       color: var(--text-secondary);
 
       cursor: pointer;
@@ -262,14 +231,14 @@
     }
 
     .icon-btn svg {
-      width: 18px;
-      height: 18px;
+      width: 19px;
+      height: 19px;
     }
 
 
-    /* =========================================================
+    /* =====================================================
        MAIN
-    ========================================================= */
+    ===================================================== */
 
     .main {
       flex: 1;
@@ -278,15 +247,14 @@
       display: flex;
       justify-content: center;
 
-      padding: 0;
+      padding: 20px;
     }
 
     .chat {
       width: 100%;
-      max-width: 1100px;
+      max-width: 1050px;
 
-      height: calc(100vh - 58px);
-
+      height: calc(100vh - 96px);
       min-height: 500px;
 
       display: flex;
@@ -294,55 +262,47 @@
 
       overflow: hidden;
 
-      background: var(--surface);
+      background: var(--background-secondary);
+
+      border: 1px solid var(--border);
+      border-radius: 10px;
+
+      box-shadow: var(--shadow);
     }
 
 
-    /* =========================================================
+    /* =====================================================
        CHAT HEADER
-    ========================================================= */
+    ===================================================== */
 
     .chat-header {
+      height: 52px;
       flex-shrink: 0;
-
-      min-height: 52px;
 
       display: flex;
       align-items: center;
       justify-content: space-between;
 
-      padding: 0 18px;
+      padding: 0 14px;
 
-      background: var(--surface);
+      background: var(--background-secondary);
 
-      border-bottom:
-        1px solid var(--border);
+      border-bottom: 1px solid var(--border);
     }
 
     .model-info {
       display: flex;
       align-items: center;
-
       gap: 9px;
     }
 
-    .model-icon {
-      width: 28px;
-      height: 28px;
+    .model-status {
+      width: 8px;
+      height: 8px;
 
-      display: grid;
-      place-items: center;
+      border-radius: 50%;
 
-      border-radius: 6px;
-
-      background: var(--accent-soft);
-
-      color: var(--accent);
-    }
-
-    .model-icon svg {
-      width: 16px;
-      height: 16px;
+      background: var(--success);
     }
 
     .model-name {
@@ -351,24 +311,23 @@
     }
 
     .model-label {
-      margin-top: 1px;
-
-      font-size: 10px;
+      margin-top: 2px;
 
       color: var(--text-muted);
+
+      font-size: 10px;
     }
 
     .chat-actions {
       display: flex;
       align-items: center;
-
-      gap: 2px;
+      gap: 3px;
     }
 
 
-    /* =========================================================
+    /* =====================================================
        MESSAGES
-    ========================================================= */
+    ===================================================== */
 
     .messages {
       flex: 1;
@@ -377,11 +336,14 @@
       overflow-y: auto;
       overflow-x: hidden;
 
-      padding: 24px 22px 30px;
-
-      scroll-behavior: smooth;
+      padding: 24px 0 30px;
 
       overscroll-behavior: contain;
+
+      scrollbar-width: thin;
+      scrollbar-color:
+        var(--background-tertiary)
+        transparent;
     }
 
     .messages::-webkit-scrollbar {
@@ -393,63 +355,34 @@
     }
 
     .messages::-webkit-scrollbar-thumb {
-      background: var(--border-strong);
-
-      border-radius: 4px;
-    }
-
-    .messages::-webkit-scrollbar-thumb:hover {
-      background: var(--text-muted);
+      background: var(--background-tertiary);
+      border-radius: 999px;
     }
 
 
-    /* =========================================================
+    /* =====================================================
        WELCOME
-    ========================================================= */
+    ===================================================== */
 
     .welcome {
       max-width: 650px;
 
-      margin: 90px auto 60px;
+      margin: 70px auto 50px;
+
+      padding: 0 24px;
 
       text-align: center;
 
-      animation:
-        fadeUp 0.3s ease;
-    }
-
-    .welcome-orb {
-      width: 48px;
-      height: 48px;
-
-      display: grid;
-      place-items: center;
-
-      margin: 0 auto 18px;
-
-      border-radius: 50%;
-
-      background: var(--accent);
-
-      color: white;
-    }
-
-    .welcome-orb svg {
-      width: 24px;
-      height: 24px;
+      animation: fadeIn 0.3s ease;
     }
 
     .welcome h1 {
-      font-size:
-        clamp(25px, 4vw, 34px);
+      margin-bottom: 10px;
 
-      line-height: 1.2;
-
+      font-size: clamp(28px, 5vw, 38px);
       font-weight: 700;
 
-      letter-spacing: -0.5px;
-
-      margin-bottom: 10px;
+      letter-spacing: -0.8px;
     }
 
     .welcome h1 span {
@@ -459,19 +392,18 @@
     .welcome p {
       max-width: 520px;
 
-      margin: auto;
+      margin: 0 auto;
 
       color: var(--text-secondary);
 
-      line-height: 1.6;
-
       font-size: 14px;
+      line-height: 1.65;
     }
 
 
-    /* =========================================================
+    /* =====================================================
        SUGGESTIONS
-    ========================================================= */
+    ===================================================== */
 
     .suggestions {
       display: grid;
@@ -481,31 +413,24 @@
 
       gap: 8px;
 
-      max-width: 620px;
-
-      margin: 24px auto 0;
+      margin-top: 26px;
     }
 
     .suggestion {
-      min-height: 58px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
 
       padding: 12px 13px;
 
-      display: flex;
-      align-items: center;
+      border: 1px solid var(--border);
+      border-radius: 7px;
 
-      gap: 10px;
+      background: var(--surface);
+
+      color: var(--text-secondary);
 
       text-align: left;
-
-      border:
-        1px solid var(--border);
-
-      border-radius: 6px;
-
-      background: var(--sidebar);
-
-      color: var(--text);
 
       cursor: pointer;
 
@@ -518,13 +443,15 @@
       background: var(--surface-hover);
 
       border-color:
-        var(--border-strong);
+        rgba(88, 101, 242, 0.4);
+
+      color: var(--text);
     }
 
     .suggestion-icon {
-      color: var(--accent);
-
       flex-shrink: 0;
+
+      color: var(--accent);
     }
 
     .suggestion-icon svg {
@@ -534,26 +461,31 @@
 
     .suggestion-text {
       font-size: 12px;
-
       line-height: 1.4;
-
-      color: var(--text-secondary);
     }
 
 
-    /* =========================================================
+    /* =====================================================
        MESSAGE ROW
-    ========================================================= */
+    ===================================================== */
 
     .message-row {
-      display: flex;
-
       width: 100%;
 
-      margin-bottom: 20px;
+      display: flex;
 
-      animation:
-        fadeUp 0.2s ease;
+      padding: 8px 24px;
+
+      animation: messageIn 0.2s ease;
+    }
+
+    .message-row:hover {
+      background: rgba(0, 0, 0, 0.025);
+    }
+
+    [data-theme="dark"]
+    .message-row:hover {
+      background: rgba(0, 0, 0, 0.08);
     }
 
     .message-row.user {
@@ -564,58 +496,51 @@
       justify-content: flex-start;
     }
 
+
+    /* =====================================================
+       MESSAGE
+    ===================================================== */
+
     .message {
+      max-width: min(82%, 780px);
+
       position: relative;
-
-      max-width:
-        min(82%, 760px);
     }
-
-
-    /* =========================================================
-       USER MESSAGE
-    ========================================================= */
 
     .message-row.user .message {
       padding: 10px 14px;
 
-      border-radius:
-        12px 12px 3px 12px;
+      border-radius: 8px 8px 2px 8px;
 
-      background:
-        var(--user-bubble);
-
-      color: white;
+      background: var(--user-message);
     }
 
     .message-row.ai .message {
-      padding: 1px 2px;
+      width: 100%;
 
-      color: var(--text);
+      padding: 2px 0;
     }
 
     .message-content {
-      line-height: 1.65;
-
       font-size: 14px;
+      line-height: 1.65;
 
       word-break: break-word;
     }
 
     .message-row.user .message-content {
-      line-height: 1.5;
-
       white-space: pre-wrap;
+
+      line-height: 1.5;
     }
 
 
-    /* =========================================================
+    /* =====================================================
        MARKDOWN
-    ========================================================= */
+    ===================================================== */
 
     .message-content p {
-      margin:
-        0 0 12px;
+      margin-bottom: 12px;
     }
 
     .message-content p:last-child {
@@ -626,10 +551,9 @@
     .message-content h2,
     .message-content h3,
     .message-content h4 {
-      line-height: 1.3;
+      margin: 20px 0 9px;
 
-      margin:
-        20px 0 9px;
+      line-height: 1.35;
     }
 
     .message-content h1 {
@@ -646,10 +570,9 @@
 
     .message-content ul,
     .message-content ol {
-      padding-left: 22px;
+      margin: 9px 0 14px;
 
-      margin:
-        10px 0 14px;
+      padding-left: 22px;
     }
 
     .message-content li {
@@ -657,140 +580,112 @@
     }
 
     .message-content blockquote {
-      margin:
-        14px 0;
+      margin: 13px 0;
 
-      padding:
-        9px 13px;
+      padding: 9px 13px;
 
       border-left:
         3px solid var(--accent);
 
-      color:
-        var(--text-secondary);
-
       background:
-        var(--accent-soft);
+        rgba(88, 101, 242, 0.08);
 
-      border-radius:
-        0 4px 4px 0;
+      color: var(--text-secondary);
     }
 
     .message-content a {
-      color: #00a8fc;
+      color: #8ea1ff;
 
-      text-decoration: none;
-    }
-
-    .message-content a:hover {
       text-decoration: underline;
+
+      text-underline-offset: 2px;
     }
 
     .message-content code:not(pre code) {
-      padding:
-        2px 5px;
+      padding: 2px 5px;
 
       border-radius: 4px;
 
-      background:
-        var(--accent-soft);
+      background: var(--background-tertiary);
 
-      color:
-        #c9cdfb;
+      color: #e8e8ff;
 
       font-family:
         "SFMono-Regular",
         Consolas,
         monospace;
 
-      font-size:
-        0.88em;
+      font-size: 0.88em;
     }
 
 
-    /* =========================================================
-       CODE BLOCKS
-    ========================================================= */
+    /* =====================================================
+       CODE
+    ===================================================== */
 
     .code-wrapper {
-      position: relative;
+      margin: 14px 0;
 
-      margin:
-        14px 0;
+      overflow: hidden;
+
+      border:
+        1px solid rgba(255, 255, 255, 0.05);
+
+      border-radius: 7px;
+
+      background: var(--code-bg);
     }
 
     .code-header {
-      height: 32px;
+      min-height: 34px;
 
       display: flex;
       align-items: center;
       justify-content: space-between;
 
-      padding:
-        0 10px;
+      padding: 0 10px;
 
-      background:
-        #1e1f22;
+      background: var(--background-tertiary);
 
-      border-radius:
-        6px 6px 0 0;
-
-      color:
-        #b5bac1;
-
-      font-size:
-        10px;
+      color: var(--text-muted);
 
       font-family:
+        "SFMono-Regular",
+        Consolas,
         monospace;
+
+      font-size: 10px;
     }
 
     .code-copy {
-      padding:
-        4px 7px;
+      padding: 4px 7px;
 
       border-radius: 4px;
 
-      background:
-        #2b2d31;
+      background: rgba(255, 255, 255, 0.05);
 
-      color:
-        #b5bac1;
+      color: var(--text-secondary);
 
       cursor: pointer;
 
-      font-size:
-        10px;
-
-      transition:
-        background 0.15s ease,
-        color 0.15s ease;
+      font-size: 10px;
     }
 
     .code-copy:hover {
-      background:
-        #3a3c43;
-
-      color:
-        white;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text);
     }
 
     .message-content pre {
       margin: 0;
 
-      padding:
-        14px;
+      padding: 14px;
 
       overflow-x: auto;
 
-      background:
-        var(--code-bg);
+      background: var(--code-bg);
 
-      color:
-        var(--code-text);
-
-      border-radius:
-        0 0 6px 6px;
+      color: #e6edf3;
 
       font-family:
         "SFMono-Regular",
@@ -798,47 +693,44 @@
         "Liberation Mono",
         monospace;
 
-      font-size:
-        12px;
+      font-size: 12px;
 
-      line-height:
-        1.6;
+      line-height: 1.6;
     }
+
+
+    /* =====================================================
+       TABLES
+    ===================================================== */
 
     .message-content table {
       width: 100%;
 
-      border-collapse:
-        collapse;
+      margin: 14px 0;
 
-      margin:
-        14px 0;
+      border-collapse: collapse;
 
-      font-size:
-        12px;
+      font-size: 12px;
     }
 
     .message-content th,
     .message-content td {
-      padding:
-        8px 10px;
+      padding: 8px 10px;
 
       border:
-        1px solid var(--border-strong);
+        1px solid var(--border);
 
-      text-align:
-        left;
+      text-align: left;
     }
 
     .message-content th {
-      background:
-        var(--sidebar);
+      background: var(--surface);
     }
 
 
-    /* =========================================================
+    /* =====================================================
        MESSAGE TOOLS
-    ========================================================= */
+    ===================================================== */
 
     .message-tools {
       display: flex;
@@ -846,48 +738,39 @@
 
       gap: 3px;
 
-      margin-top: 7px;
+      margin-top: 6px;
 
       opacity: 0;
 
-      transition:
-        opacity 0.15s ease;
+      transition: opacity 0.15s ease;
     }
 
-    .message-row.ai:hover
-    .message-tools {
+    .message-row.ai:hover .message-tools {
       opacity: 1;
     }
 
     .tool-btn {
       display: flex;
       align-items: center;
+      gap: 5px;
 
-      gap: 4px;
+      padding: 5px 7px;
 
-      padding:
-        4px 6px;
+      border-radius: 5px;
 
-      border-radius: 4px;
+      background: transparent;
 
-      background:
-        transparent;
-
-      color:
-        var(--text-muted);
+      color: var(--text-muted);
 
       cursor: pointer;
 
-      font-size:
-        10px;
+      font-size: 10px;
     }
 
     .tool-btn:hover {
-      background:
-        var(--surface-hover);
+      background: var(--surface-hover);
 
-      color:
-        var(--text);
+      color: var(--text);
     }
 
     .tool-btn svg {
@@ -896,18 +779,16 @@
     }
 
 
-    /* =========================================================
-       TYPING INDICATOR
-    ========================================================= */
+    /* =====================================================
+       TYPING
+    ===================================================== */
 
     .typing {
-      display: inline-flex;
+      display: flex;
       align-items: center;
-
       gap: 4px;
 
-      padding:
-        8px 0;
+      padding: 9px 0;
     }
 
     .typing-dot {
@@ -916,105 +797,96 @@
 
       border-radius: 50%;
 
-      background:
-        var(--text-muted);
+      background: var(--text-muted);
 
       animation:
-        typing 1.2s
-        infinite
-        ease-in-out;
+        typing 1.1s infinite ease-in-out;
     }
 
     .typing-dot:nth-child(2) {
-      animation-delay:
-        0.15s;
+      animation-delay: 0.15s;
     }
 
     .typing-dot:nth-child(3) {
-      animation-delay:
-        0.3s;
+      animation-delay: 0.3s;
     }
 
 
-    /* =========================================================
+    /* =====================================================
        COMPOSER
-    ========================================================= */
+    ===================================================== */
 
     .composer-wrap {
       flex-shrink: 0;
 
-      padding:
-        10px 18px 16px;
+      padding: 10px 18px 16px;
 
-      background:
-        var(--surface);
+      background: var(--background-secondary);
     }
 
     .composer {
-      position: relative;
-
       display: flex;
       align-items: flex-end;
-
       gap: 8px;
 
-      padding:
-        8px 8px 8px 14px;
+      padding: 8px 8px 8px 13px;
 
       border:
-        1px solid var(--border-strong);
+        1px solid rgba(255, 255, 255, 0.06);
 
       border-radius: 8px;
 
-      background:
-        var(--sidebar);
+      background: var(--input);
 
       transition:
         border-color 0.15s ease,
-        background 0.15s ease;
+        box-shadow 0.15s ease;
+    }
+
+    [data-theme="light"] .composer {
+      border-color:
+        rgba(0, 0, 0, 0.08);
     }
 
     .composer:focus-within {
       border-color:
         rgba(88, 101, 242, 0.65);
 
-      background:
-        var(--surface-hover);
+      box-shadow:
+        0 0 0 1px
+        rgba(88, 101, 242, 0.25);
     }
 
     .composer textarea {
       flex: 1;
 
-      min-height: 40px;
-
+      min-height: 42px;
       max-height: 180px;
 
       resize: none;
 
       border: 0;
-
       outline: 0;
 
-      background:
-        transparent;
+      background: transparent;
 
-      color:
-        var(--text);
+      color: var(--text);
 
-      padding:
-        9px 2px;
+      padding: 9px 2px;
 
-      font-size:
-        14px;
+      font-size: 14px;
 
-      line-height:
-        1.5;
+      line-height: 1.5;
     }
 
     .composer textarea::placeholder {
-      color:
-        var(--text-muted);
+      color: var(--text-muted);
     }
+
+
+    /* =====================================================
+       SEND
+    ===================================================== */
 
     .send-btn {
       width: 40px;
@@ -1027,40 +899,32 @@
 
       border-radius: 6px;
 
-      background:
-        var(--accent);
+      background: var(--accent);
 
-      color:
-        white;
+      color: white;
 
       cursor: pointer;
 
       transition:
         background 0.15s ease,
+        transform 0.15s ease,
         opacity 0.15s ease;
     }
 
     .send-btn:hover:not(:disabled) {
-      background:
-        var(--accent-hover);
+      background: var(--accent-hover);
+
+      transform: translateY(-1px);
     }
 
     .send-btn:disabled {
-      opacity:
-        0.4;
+      opacity: 0.35;
 
-      cursor:
-        not-allowed;
+      cursor: not-allowed;
     }
 
     .send-btn.stop {
-      background:
-        var(--danger);
-    }
-
-    .send-btn.stop:hover {
-      background:
-        #c9363e;
+      background: var(--danger);
     }
 
     .send-btn svg {
@@ -1068,19 +932,21 @@
       height: 17px;
     }
 
+
+    /* =====================================================
+       COMPOSER FOOTER
+    ===================================================== */
+
     .composer-footer {
       display: flex;
       align-items: center;
       justify-content: space-between;
 
-      padding:
-        6px 2px 0;
+      padding: 6px 2px 0;
 
-      color:
-        var(--text-muted);
+      color: var(--text-muted);
 
-      font-size:
-        9px;
+      font-size: 10px;
     }
 
     .shortcut {
@@ -1091,77 +957,66 @@
     }
 
     kbd {
-      padding:
-        2px 5px;
+      padding: 2px 5px;
 
       border:
-        1px solid var(--border-strong);
+        1px solid var(--border);
 
       border-radius: 3px;
 
-      background:
-        var(--surface);
+      background: var(--background-tertiary);
 
-      font-family:
-        inherit;
+      font-family: inherit;
 
-      font-size:
-        9px;
+      font-size: 9px;
     }
 
 
-    /* =========================================================
+    /* =====================================================
        FOOTER
-    ========================================================= */
+    ===================================================== */
 
     .footer {
       flex-shrink: 0;
 
+      padding: 0 20px 12px;
+
       text-align: center;
 
-      padding:
-        0 20px 10px;
+      color: var(--text-muted);
 
-      background:
-        var(--surface);
-
-      color:
-        var(--text-muted);
-
-      font-size:
-        9px;
+      font-size: 10px;
     }
 
 
-    /* =========================================================
+    /* =====================================================
        TOAST
-    ========================================================= */
+    ===================================================== */
 
     .toast {
       position: fixed;
 
       left: 50%;
-      bottom: 24px;
+      bottom: 25px;
 
       transform:
         translate(-50%, 15px);
 
-      padding:
-        9px 13px;
+      padding: 9px 13px;
 
-      border-radius: 5px;
+      border:
+        1px solid var(--border);
+
+      border-radius: 6px;
 
       background:
-        #111214;
+        var(--background-tertiary);
 
-      color:
-        #f2f3f5;
+      color: var(--text);
 
-      box-shadow:
-        var(--shadow-md);
+      box-shadow: var(--shadow);
 
-      font-size:
-        11px;
+      font-size: 12px;
 
       opacity: 0;
 
@@ -1182,50 +1037,52 @@
     }
 
 
-    /* =========================================================
+    /* =====================================================
        ANIMATIONS
-    ========================================================= */
+    ===================================================== */
 
-    @keyframes fadeUp {
-
+    @keyframes fadeIn {
       from {
         opacity: 0;
-        transform:
-          translateY(5px);
+        transform: translateY(6px);
       }
 
       to {
         opacity: 1;
-        transform:
-          translateY(0);
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes messageIn {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
       }
     }
 
     @keyframes typing {
-
       0%,
       60%,
       100% {
-        transform:
-          translateY(0);
-
-        opacity:
-          0.4;
+        opacity: 0.35;
+        transform: translateY(0);
       }
 
       30% {
-        transform:
-          translateY(-3px);
-
-        opacity:
-          1;
+        opacity: 1;
+        transform: translateY(-3px);
       }
     }
 
 
-    /* =========================================================
-       RESPONSIVE
-    ========================================================= */
+    /* =====================================================
+       MOBILE
+    ===================================================== */
 
     @media (max-width: 700px) {
 
@@ -1237,36 +1094,39 @@
       }
 
       .brand-subtitle {
-        display:
-          none;
+        display: none;
       }
 
       .main {
-        padding:
-          0;
+        padding: 0;
       }
 
       .chat {
-        height:
-          calc(100vh - 56px);
+        width: 100%;
+        height: calc(100vh - 56px);
 
-        min-height:
-          0;
-      }
+        min-height: 0;
 
-      .chat-header {
-        min-height:
-          50px;
+        border-radius: 0;
+
+        border-left: 0;
+        border-right: 0;
+
+        box-shadow: none;
       }
 
       .messages {
         padding:
-          20px 14px 26px;
+          18px 0 24px;
+      }
+
+      .message-row {
+        padding:
+          7px 14px;
       }
 
       .message {
-        max-width:
-          91%;
+        max-width: 92%;
       }
 
       .welcome {
@@ -1274,14 +1134,8 @@
           55px auto 40px;
       }
 
-      .welcome h1 {
-        font-size:
-          26px;
-      }
-
       .suggestions {
-        grid-template-columns:
-          1fr;
+        grid-template-columns: 1fr;
       }
 
       .composer-wrap {
@@ -1290,37 +1144,34 @@
       }
 
       .composer-footer {
-        padding-left:
-          2px;
-
-        padding-right:
-          2px;
+        padding-left: 2px;
+        padding-right: 2px;
       }
 
       .shortcut {
-        display:
-          none;
+        display: none;
       }
 
       .footer {
-        display:
-          none;
+        display: none;
       }
 
       .message-tools {
-        opacity:
-          1;
+        opacity: 1;
       }
     }
 
+
+    /* =====================================================
+       REDUCED MOTION
+    ===================================================== */
 
     @media (prefers-reduced-motion: reduce) {
 
       *,
       *::before,
       *::after {
-        scroll-behavior:
-          auto !important;
+        scroll-behavior: auto !important;
 
         animation-duration:
           0.01ms !important;
@@ -1330,531 +1181,508 @@
       }
     }
   </style>
-</head>
 
+</head>
 
 <body>
 
-  <div class="app">
+<div class="app">
 
-    <!-- =====================================================
-         TOP BAR
-    ====================================================== -->
+  <!-- =====================================================
+       TOP BAR
+  ===================================================== -->
 
-    <header class="topbar">
+  <header class="topbar">
 
-      <div class="brand">
+```
+<div class="brand">
 
-        <div class="brand-info">
+  <div class="brand-title">
+    Free AI
+  </div>
 
-          <div class="brand-title">
-            Free AI
-          </div>
+  <div class="brand-subtitle">
+    <span class="status-dot"></span>
+    Online
+  </div>
 
-          <div class="brand-subtitle">
+</div>
 
-            <span class="status-dot"></span>
 
-            Online · OpenRouter
+<div class="topbar-actions">
 
-          </div>
+  <button
+    class="icon-btn"
+    id="themeBtn"
+    type="button"
+    aria-label="Toggle theme"
+    title="Toggle theme"
+  >
 
+    <svg
+      id="themeIcon"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+    >
+      <circle
+        cx="12"
+        cy="12"
+        r="4"
+      />
+
+      <path
+        d="
+          M12 2v2
+          M12 20v2
+          M4.93 4.93l1.42 1.42
+          M17.65 17.65l1.42 1.42
+          M2 12h2
+          M20 12h2
+          M4.93 19.07l1.42-1.42
+          M17.65 6.35l1.42-1.42
+        "
+      />
+    </svg>
+
+  </button>
+
+</div>
+```
+
+  </header>
+
+  <!-- =====================================================
+       MAIN
+  ===================================================== -->
+
+  <main class="main">
+
+```
+<section class="chat">
+
+
+  <!-- =================================================
+       CHAT HEADER
+  ================================================= -->
+
+  <div class="chat-header">
+
+    <div class="model-info">
+
+      <span class="model-status"></span>
+
+      <div>
+
+        <div class="model-name">
+          Free AI
+        </div>
+
+        <div class="model-label">
+          OpenRouter
         </div>
 
       </div>
 
+    </div>
 
-      <div class="topbar-actions">
 
-        <button
-          class="icon-btn"
-          id="themeBtn"
-          aria-label="Toggle theme"
-          title="Toggle theme"
+    <div class="chat-actions">
+
+      <button
+        class="icon-btn"
+        id="clearBtn"
+        type="button"
+        aria-label="Clear conversation"
+        title="Clear conversation"
+      >
+
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
         >
 
-          <svg
-            id="themeIcon"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
+          <path d="M3 6h18"/>
 
-            <circle
-              cx="12"
-              cy="12"
-              r="4"
-            />
+          <path d="M8 6V4h8v2"/>
 
-            <path
-              d="M12 2v2M12 20v2"
-            />
+          <path
+            d="
+              M19 6l-1 15H6L5 6
+            "
+          />
 
-            <path
-              d="M4.93 4.93l1.42 1.42"
-            />
+          <path
+            d="
+              M10 11v6
+              M14 11v6
+            "
+          />
 
-            <path
-              d="M17.65 17.65l1.42 1.42"
-            />
+        </svg>
 
-            <path
-              d="M2 12h2M20 12h2"
-            />
+      </button>
 
-            <path
-              d="M4.93 19.07l1.42-1.42"
-            />
-
-            <path
-              d="M17.65 6.35l1.42-1.42"
-            />
-
-          </svg>
-
-        </button>
-
-      </div>
-
-    </header>
-
-
-    <!-- =====================================================
-         MAIN
-    ====================================================== -->
-
-    <main class="main">
-
-      <section class="chat">
-
-
-        <!-- =================================================
-             CHAT HEADER
-        ================================================== -->
-
-        <div class="chat-header">
-
-          <div class="model-info">
-
-            <div class="model-icon">
-
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-
-                <path
-                  d="M12 3a8 8 0 0 0-8 8v1a3 3 0 0 0 3 3h1v-4H6"
-                />
-
-                <path
-                  d="M12 3a8 8 0 0 1 8 8v1a3 3 0 0 1-3 3h-1v-4h2"
-                />
-
-                <path
-                  d="M8 17a4 4 0 0 0 8 0"
-                />
-
-              </svg>
-
-            </div>
-
-
-            <div>
-
-              <div class="model-name">
-                OpenRouter AI
-              </div>
-
-              <div class="model-label">
-                AI Assistant
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <div class="chat-actions">
-
-            <button
-              class="icon-btn"
-              id="clearBtn"
-              aria-label="Clear conversation"
-              title="Clear conversation"
-            >
-
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-
-                <path d="M3 6h18"/>
-
-                <path
-                  d="M8 6V4h8v2"
-                />
-
-                <path
-                  d="M19 6l-1 15H6L5 6"
-                />
-
-                <path
-                  d="M10 11v6M14 11v6"
-                />
-
-              </svg>
-
-            </button>
-
-          </div>
-
-        </div>
-
-
-        <!-- =================================================
-             MESSAGES
-        ================================================== -->
-
-        <div
-          class="messages"
-          id="messages"
-        >
-
-          <div
-            class="welcome"
-            id="welcome"
-          >
-
-            <div class="welcome-orb">
-
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.8"
-              >
-
-                <path
-                  d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z"
-                />
-
-                <path
-                  d="M19 16l.7 2.3L22 19l-2.3.7L19 22l-.7-2.3L16 19l2.3-.7L19 16z"
-                />
-
-              </svg>
-
-            </div>
-
-
-            <h1>
-              What can I help you
-              <br>
-              <span>build today?</span>
-            </h1>
-
-
-            <p>
-              Ask questions, write code, analyze ideas,
-              solve problems, or simply start a conversation.
-            </p>
-
-
-            <div class="suggestions">
-
-
-              <button
-                class="suggestion"
-                data-prompt="Help me build a modern website from scratch."
-              >
-
-                <span class="suggestion-icon">
-
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-
-                    <path
-                      d="M4 5h16v14H4z"
-                    />
-
-                    <path
-                      d="M4 9h16M8 5v4"
-                    />
-
-                  </svg>
-
-                </span>
-
-
-                <span class="suggestion-text">
-                  Help me build a modern website
-                </span>
-
-              </button>
-
-
-              <button
-                class="suggestion"
-                data-prompt="Explain this programming concept clearly with examples."
-              >
-
-                <span class="suggestion-icon">
-
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-
-                    <path d="M9 18h6"/>
-
-                    <path d="M10 22h4"/>
-
-                    <path
-                      d="M8.5 14.5A7 7 0 1 1 15.5 14.5c-.8.6-1.5 1.4-1.5 2.5h-4c0-1.1-.7-1.9-1.5-2.5z"
-                    />
-
-                  </svg>
-
-                </span>
-
-
-                <span class="suggestion-text">
-                  Explain a difficult concept
-                </span>
-
-              </button>
-
-
-              <button
-                class="suggestion"
-                data-prompt="Review and improve this code for performance, security, and readability."
-              >
-
-                <span class="suggestion-icon">
-
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-
-                    <path
-                      d="M8 9l-3 3 3 3"
-                    />
-
-                    <path
-                      d="M16 9l3 3-3 3"
-                    />
-
-                    <path
-                      d="M14 5l-4 14"
-                    />
-
-                  </svg>
-
-                </span>
-
-
-                <span class="suggestion-text">
-                  Review and improve my code
-                </span>
-
-              </button>
-
-
-              <button
-                class="suggestion"
-                data-prompt="Give me a practical step-by-step plan for learning AI development."
-              >
-
-                <span class="suggestion-icon">
-
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-
-                    <path
-                      d="M12 3v18"
-                    />
-
-                    <path
-                      d="M5 8l7-5 7 5"
-                    />
-
-                    <path
-                      d="M5 16l7 5 7-5"
-                    />
-
-                  </svg>
-
-                </span>
-
-
-                <span class="suggestion-text">
-                  Create a practical learning plan
-                </span>
-
-              </button>
-
-
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <!-- =================================================
-             COMPOSER
-        ================================================== -->
-
-        <div class="composer-wrap">
-
-          <div class="composer">
-
-            <textarea
-              id="userInput"
-              rows="1"
-              placeholder="Message Free AI..."
-              autocomplete="off"
-              spellcheck="true"
-            ></textarea>
-
-
-            <button
-              class="send-btn"
-              id="sendBtn"
-              aria-label="Send message"
-              title="Send message"
-            >
-
-              <svg
-                id="sendIcon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-
-                <path
-                  d="M22 2L11 13"
-                />
-
-                <path
-                  d="M22 2l-7 20-4-9-9-4 20-7z"
-                />
-
-              </svg>
-
-            </button>
-
-          </div>
-
-
-          <div class="composer-footer">
-
-            <span>
-              AI can make mistakes. Verify important information.
-            </span>
-
-
-            <span class="shortcut">
-
-              <kbd>Enter</kbd>
-              send
-
-              <span>·</span>
-
-              <kbd>Shift</kbd>
-              +
-              <kbd>Enter</kbd>
-              new line
-
-            </span>
-
-          </div>
-
-        </div>
-
-      </section>
-
-    </main>
-
-
-    <footer class="footer">
-      Free AI · Powered by OpenRouter
-    </footer>
+    </div>
 
   </div>
 
 
+  <!-- =================================================
+       MESSAGES
+  ================================================= -->
+
   <div
-    class="toast"
-    id="toast"
-  ></div>
+    class="messages"
+    id="messages"
+  >
+
+    <div
+      class="welcome"
+      id="welcome"
+    >
+
+      <h1>
+        What can I help you
+        <span>with?</span>
+      </h1>
+
+      <p>
+        Ask a question, write some code,
+        brainstorm an idea, or just start
+        a conversation.
+      </p>
 
 
-  <script>
-
-    /* =========================================================
-       CONFIGURATION
-    ========================================================= */
-
-    /*
-     * OpenRouter API endpoint.
-     */
-    const API_URL =
-      "https://openrouter.ai/api/v1/chat/completions";
+      <div class="suggestions">
 
 
-    /*
-     * IMPORTANT:
-     *
-     * Do NOT publish your real API key in a public website.
-     *
-     * Anyone can inspect the page and retrieve it.
-     *
-     * For testing locally, you can put your key here.
-     */
-   const API_KEY = process.env.OPENROUTER_API_KEY;
+        <button
+          class="suggestion"
+          type="button"
+          data-prompt="Help me build a modern website from scratch."
+        >
 
-    /*
-     * OpenRouter model ID.
-     *
-     * Change this to whichever model you want to use.
-     *
-     * Examples:
-     *
-     * meta-llama/llama-3.3-70b-instruct
-     * deepseek/deepseek-chat
-     * qwen/qwen-2.5-72b-instruct
-     *
-     * Make sure the model ID exists on OpenRouter.
-     */
-    const MODEL =
-      "meta-llama/llama-3.3-70b-instruct";
+          <span class="suggestion-icon">
+
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+
+              <rect
+                x="3"
+                y="4"
+                width="18"
+                height="16"
+                rx="2"
+              />
+
+              <path
+                d="
+                  M3 9h18
+                "
+              />
+
+              <path
+                d="
+                  M7 6.5h.01
+                  M10 6.5h.01
+                "
+              />
+
+            </svg>
+
+          </span>
+
+          <span class="suggestion-text">
+            Help me build a modern website
+          </span>
+
+        </button>
 
 
-    const SYSTEM_PROMPT = `
-You are Free AI, a highly capable professional AI assistant.
+        <button
+          class="suggestion"
+          type="button"
+          data-prompt="Explain this programming concept clearly with examples."
+        >
 
-Give accurate, useful, direct answers.
+          <span class="suggestion-icon">
+
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+
+              <circle
+                cx="12"
+                cy="12"
+                r="9"
+              />
+
+              <path
+                d="
+                  M9.5 9
+                  a2.5 2.5 0 1 1 4.5 1.5
+                  c0 1.8-2 2-2 3.5
+                "
+              />
+
+              <path
+                d="
+                  M12 17h.01
+                "
+              />
+
+            </svg>
+
+          </span>
+
+          <span class="suggestion-text">
+            Explain a difficult concept
+          </span>
+
+        </button>
+
+
+        <button
+          class="suggestion"
+          type="button"
+          data-prompt="Review and improve this code for performance, security, and readability."
+        >
+
+          <span class="suggestion-icon">
+
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+
+              <path
+                d="
+                  M8 8l-4 4 4 4
+                "
+              />
+
+              <path
+                d="
+                  M16 8l4 4-4 4
+                "
+              />
+
+              <path
+                d="
+                  M14 4l-4 16
+                "
+              />
+
+            </svg>
+
+          </span>
+
+          <span class="suggestion-text">
+            Review and improve my code
+          </span>
+
+        </button>
+
+
+        <button
+          class="suggestion"
+          type="button"
+          data-prompt="Give me a practical step-by-step plan for learning AI development."
+        >
+
+          <span class="suggestion-icon">
+
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+
+              <path
+                d="
+                  M12 3v18
+                "
+              />
+
+              <path
+                d="
+                  M5 8l7-5 7 5
+                "
+              />
+
+              <path
+                d="
+                  M5 16l7 5 7-5
+                "
+              />
+
+            </svg>
+
+          </span>
+
+          <span class="suggestion-text">
+            Create a practical learning plan
+          </span>
+
+        </button>
+
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =================================================
+       COMPOSER
+  ================================================= -->
+
+  <div class="composer-wrap">
+
+    <div class="composer">
+
+      <textarea
+        id="userInput"
+        rows="1"
+        placeholder="Message Free AI..."
+        autocomplete="off"
+        spellcheck="true"
+      ></textarea>
+
+
+      <button
+        class="send-btn"
+        id="sendBtn"
+        type="button"
+        aria-label="Send message"
+        title="Send message"
+      >
+
+        <svg
+          id="sendIcon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+
+          <path
+            d="M22 2L11 13"
+          />
+
+          <path
+            d="
+              M22 2
+              l-7 20
+              -4-9
+              -9-4
+              20-7z
+            "
+          />
+
+        </svg>
+
+      </button>
+
+    </div>
+
+
+    <div class="composer-footer">
+
+      <span>
+        AI can make mistakes. Check important information.
+      </span>
+
+
+      <span class="shortcut">
+
+        <kbd>Enter</kbd>
+        send
+
+        <span>·</span>
+
+        <kbd>Shift</kbd>
+        +
+        <kbd>Enter</kbd>
+        new line
+
+      </span>
+
+    </div>
+
+  </div>
+
+</section>
+```
+
+  </main>
+
+  <footer class="footer">
+    Free AI · Powered by OpenRouter
+  </footer>
+
+</div>
+
+<div
+  class="toast"
+  id="toast"
+></div>
+
+<script>
+
+/* =========================================================
+   CONFIGURATION
+========================================================= */
+
+/*
+ * IMPORTANT:
+ *
+ * This must point to your Cloudflare Worker.
+ *
+ * DO NOT put your OpenRouter API key here.
+ *
+ * Example:
+ *
+ * const API_URL =
+ *   "https://free-ai-api.yourname.workers.dev";
+ */
+
+const API_URL =
+  "https://YOUR-WORKER.workers.dev";
+
+
+/*
+ * The Worker is responsible for:
+ *
+ * - OpenRouter authentication
+ * - API key security
+ * - model selection
+ * - streaming
+ */
+
+const MODEL =
+  "openrouter/free";
+
+
+const SYSTEM_PROMPT = `
+You are Free AI, a helpful and capable AI assistant.
+
+Give accurate, useful and direct answers.
 
 When appropriate:
 - Use clear headings.
@@ -1869,1473 +1697,1621 @@ When appropriate:
 `;
 
 
-    /* =========================================================
-       DOM
-    ========================================================= */
+/* =========================================================
+   DOM
+========================================================= */
 
-    const html =
-      document.documentElement;
+const html =
+  document.documentElement;
 
-    const messagesEl =
-      document.getElementById(
-        "messages"
-      );
+const messagesEl =
+  document.getElementById("messages");
 
-    const welcomeEl =
-      document.getElementById(
-        "welcome"
-      );
+const welcomeEl =
+  document.getElementById("welcome");
 
-    const userInput =
-      document.getElementById(
-        "userInput"
-      );
+const userInput =
+  document.getElementById("userInput");
 
-    const sendBtn =
-      document.getElementById(
-        "sendBtn"
-      );
+const sendBtn =
+  document.getElementById("sendBtn");
 
-    const sendIcon =
-      document.getElementById(
-        "sendIcon"
-      );
+const sendIcon =
+  document.getElementById("sendIcon");
 
-    const themeBtn =
-      document.getElementById(
-        "themeBtn"
-      );
+const themeBtn =
+  document.getElementById("themeBtn");
 
-    const themeIcon =
-      document.getElementById(
-        "themeIcon"
-      );
+const themeIcon =
+  document.getElementById("themeIcon");
 
-    const clearBtn =
-      document.getElementById(
-        "clearBtn"
-      );
+const clearBtn =
+  document.getElementById("clearBtn");
 
-    const toastEl =
-      document.getElementById(
-        "toast"
-      );
+const toastEl =
+  document.getElementById("toast");
 
 
-    /* =========================================================
-       STATE
-    ========================================================= */
+/* =========================================================
+   STATE
+========================================================= */
 
-    let conversation = [];
+let conversation = [];
 
-    let isGenerating = false;
+let isGenerating = false;
 
-    let controller = null;
+let controller = null;
 
-    const STORAGE_KEY =
-      "free-ai-conversation";
+const STORAGE_KEY =
+  "free-ai-conversation";
 
-    const THEME_KEY =
-      "free-ai-theme";
-
-
-    /* =========================================================
-       THEME
-    ========================================================= */
-
-    function loadTheme() {
-
-      const saved =
-        localStorage.getItem(
-          THEME_KEY
-        );
-
-      if (saved) {
-
-        html.dataset.theme =
-          saved;
-
-        return;
-      }
+const THEME_KEY =
+  "free-ai-theme";
 
 
-      const prefersDark =
-        window.matchMedia &&
-        window.matchMedia(
-          "(prefers-color-scheme: dark)"
-        ).matches;
+/* =========================================================
+   THEME
+========================================================= */
+
+function loadTheme() {
+
+  const saved =
+    localStorage.getItem(THEME_KEY);
+
+  if (saved) {
+
+    html.dataset.theme =
+      saved;
+
+    return;
+  }
 
 
-      html.dataset.theme =
-        prefersDark
-          ? "dark"
-          : "light";
-    }
+  const prefersDark =
+    window.matchMedia &&
+    window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
 
 
-    function updateThemeIcon() {
-
-      const dark =
-        html.dataset.theme ===
-        "dark";
-
-
-      if (dark) {
-
-        themeIcon.innerHTML = `
-          <circle
-            cx="12"
-            cy="12"
-            r="4"
-          />
-
-          <path
-            d="M12 2v2M12 20v2"
-          />
-
-          <path
-            d="M4.93 4.93l1.42 1.42"
-          />
-
-          <path
-            d="M17.65 17.65l1.42 1.42"
-          />
-
-          <path
-            d="M2 12h2M20 12h2"
-          />
-
-          <path
-            d="M4.93 19.07l1.42-1.42"
-          />
-
-          <path
-            d="M17.65 6.35l1.42-1.42"
-          />
-        `;
-
-      } else {
-
-        themeIcon.innerHTML = `
-          <path
-            d="M21 12.8A8.5 8.5 0 1 1 11.2 3
-               6.7 6.7 0 0 0 21 12.8z"
-          />
-        `;
-      }
-    }
+  html.dataset.theme =
+    prefersDark
+      ? "dark"
+      : "light";
+}
 
 
-    themeBtn.addEventListener(
-      "click",
-      () => {
+function updateThemeIcon() {
 
-        const newTheme =
-          html.dataset.theme ===
-          "dark"
-            ? "light"
-            : "dark";
+  const dark =
+    html.dataset.theme === "dark";
 
 
-        html.dataset.theme =
-          newTheme;
+  if (dark) {
+
+    themeIcon.innerHTML = `
+      <circle cx="12" cy="12" r="4"/>
+
+      <path d="
+        M12 2v2
+        M12 20v2
+        M4.93 4.93l1.42 1.42
+        M17.65 17.65l1.42 1.42
+        M2 12h2
+        M20 12h2
+        M4.93 19.07l1.42-1.42
+        M17.65 6.35l1.42-1.42
+      "/>
+    `;
+
+  } else {
+
+    themeIcon.innerHTML = `
+      <path
+        d="
+          M21 12.8
+          A8.5 8.5 0 1 1
+          11.2 3
+          A6.7 6.7 0 0 0
+          21 12.8z
+        "
+      />
+    `;
+  }
+}
 
 
-        localStorage.setItem(
-          THEME_KEY,
-          newTheme
-        );
+themeBtn.addEventListener(
+  "click",
+  () => {
+
+    const newTheme =
+      html.dataset.theme === "dark"
+        ? "light"
+        : "dark";
 
 
-        updateThemeIcon();
-      }
+    html.dataset.theme =
+      newTheme;
+
+
+    localStorage.setItem(
+      THEME_KEY,
+      newTheme
     );
 
 
-    loadTheme();
     updateThemeIcon();
 
-
-    /* =========================================================
-       TOAST
-    ========================================================= */
-
-    let toastTimer;
+  }
+);
 
 
-    function showToast(message) {
+loadTheme();
+updateThemeIcon();
 
-      toastEl.textContent =
-        message;
 
-      toastEl.classList.add(
+/* =========================================================
+   TOAST
+========================================================= */
+
+let toastTimer;
+
+
+function showToast(message) {
+
+  toastEl.textContent =
+    message;
+
+  toastEl.classList.add(
+    "show"
+  );
+
+
+  clearTimeout(
+    toastTimer
+  );
+
+
+  toastTimer =
+    setTimeout(() => {
+
+      toastEl.classList.remove(
         "show"
       );
 
+    }, 2200);
+}
 
-      clearTimeout(
-        toastTimer
+
+/* =========================================================
+   MARKDOWN
+========================================================= */
+
+marked.setOptions({
+  breaks: true,
+  gfm: true
+});
+
+
+function renderMarkdown(content) {
+
+  const raw =
+    marked.parse(content);
+
+
+  return DOMPurify.sanitize(
+    raw,
+    {
+      USE_PROFILES: {
+        html: true
+      }
+    }
+  );
+}
+
+
+/* =========================================================
+   CODE BLOCKS
+========================================================= */
+
+function enhanceCodeBlocks(
+  container
+) {
+
+  const blocks =
+    container.querySelectorAll(
+      "pre"
+    );
+
+
+  blocks.forEach(pre => {
+
+    if (
+      pre.parentElement &&
+      pre.parentElement.classList.contains(
+        "code-wrapper"
+      )
+    ) {
+      return;
+    }
+
+
+    const code =
+      pre.querySelector("code");
+
+
+    if (!code) {
+      return;
+    }
+
+
+    const wrapper =
+      document.createElement(
+        "div"
+      );
+
+    wrapper.className =
+      "code-wrapper";
+
+
+    const header =
+      document.createElement(
+        "div"
+      );
+
+    header.className =
+      "code-header";
+
+
+    let language =
+      "code";
+
+
+    const languageClass =
+      Array.from(
+        code.classList
+      ).find(
+        className =>
+          className.startsWith(
+            "language-"
+          )
       );
 
 
-      toastTimer =
-        setTimeout(
-          () => {
+    if (languageClass) {
 
-            toastEl.classList.remove(
-              "show"
-            );
-
-          },
-          2200
+      language =
+        languageClass.replace(
+          "language-",
+          ""
         );
     }
 
 
-    /* =========================================================
-       MARKDOWN
-    ========================================================= */
-
-    marked.setOptions({
-      breaks: true,
-      gfm: true
-    });
-
-
-    function renderMarkdown(
-      content
-    ) {
-
-      const raw =
-        marked.parse(
-          content
-        );
-
-
-      return DOMPurify.sanitize(
-        raw,
-        {
-          USE_PROFILES: {
-            html: true
-          }
-        }
+    const languageLabel =
+      document.createElement(
+        "span"
       );
-    }
+
+    languageLabel.textContent =
+      language;
 
 
-    /* =========================================================
-       CODE BLOCKS
-    ========================================================= */
+    const copyButton =
+      document.createElement(
+        "button"
+      );
 
-    function enhanceCodeBlocks(
-      container
-    ) {
+    copyButton.className =
+      "code-copy";
 
-      const blocks =
-        container.querySelectorAll(
-          "pre"
-        );
+    copyButton.type =
+      "button";
 
-
-      blocks.forEach(
-        pre => {
-
-          if (
-            pre.parentElement
-              .classList
-              .contains(
-                "code-wrapper"
-              )
-          ) {
-            return;
-          }
+    copyButton.textContent =
+      "Copy";
 
 
-          const code =
-            pre.querySelector(
-              "code"
+    copyButton.addEventListener(
+      "click",
+      async () => {
+
+        try {
+
+          await navigator.clipboard
+            .writeText(
+              code.textContent
             );
-
-
-          if (!code) {
-            return;
-          }
-
-
-          const wrapper =
-            document.createElement(
-              "div"
-            );
-
-
-          wrapper.className =
-            "code-wrapper";
-
-
-          const header =
-            document.createElement(
-              "div"
-            );
-
-
-          header.className =
-            "code-header";
-
-
-          let language =
-            "code";
-
-
-          const classes =
-            Array.from(
-              code.classList
-            );
-
-
-          const languageClass =
-            classes.find(
-              className =>
-                className.startsWith(
-                  "language-"
-                )
-            );
-
-
-          if (languageClass) {
-
-            language =
-              languageClass.replace(
-                "language-",
-                ""
-              );
-          }
-
-
-          const languageLabel =
-            document.createElement(
-              "span"
-            );
-
-
-          languageLabel.textContent =
-            language;
-
-
-          const copyButton =
-            document.createElement(
-              "button"
-            );
-
-
-          copyButton.className =
-            "code-copy";
 
 
           copyButton.textContent =
-            "Copy";
+            "Copied";
 
 
-          copyButton.addEventListener(
-            "click",
-            async () => {
+          setTimeout(() => {
 
-              try {
+            copyButton.textContent =
+              "Copy";
 
-                await navigator
-                  .clipboard
-                  .writeText(
-                    code.textContent
-                  );
+          }, 1500);
 
+        } catch {
 
-                copyButton.textContent =
-                  "Copied";
-
-
-                setTimeout(
-                  () => {
-
-                    copyButton.textContent =
-                      "Copy";
-
-                  },
-                  1500
-                );
-
-              } catch {
-
-                showToast(
-                  "Unable to copy code."
-                );
-              }
-            }
+          showToast(
+            "Unable to copy code."
           );
-
-
-          header.appendChild(
-            languageLabel
-          );
-
-
-          header.appendChild(
-            copyButton
-          );
-
-
-          pre.parentNode.insertBefore(
-            wrapper,
-            pre
-          );
-
-
-          wrapper.appendChild(
-            header
-          );
-
-
-          wrapper.appendChild(
-            pre
-          );
-        }
-      );
-    }
-
-
-    /* =========================================================
-       MESSAGE CREATION
-    ========================================================= */
-
-    function addUserMessage(
-      content
-    ) {
-
-      hideWelcome();
-
-
-      const row =
-        document.createElement(
-          "div"
-        );
-
-
-      row.className =
-        "message-row user";
-
-
-      const message =
-        document.createElement(
-          "div"
-        );
-
-
-      message.className =
-        "message";
-
-
-      const messageContent =
-        document.createElement(
-          "div"
-        );
-
-
-      messageContent.className =
-        "message-content";
-
-
-      messageContent.textContent =
-        content;
-
-
-      message.appendChild(
-        messageContent
-      );
-
-
-      row.appendChild(
-        message
-      );
-
-
-      messagesEl.appendChild(
-        row
-      );
-
-
-      scrollToBottom();
-
-
-      return row;
-    }
-
-
-    function addAIMessage(
-      content = ""
-    ) {
-
-      hideWelcome();
-
-
-      const row =
-        document.createElement(
-          "div"
-        );
-
-
-      row.className =
-        "message-row ai";
-
-
-      const message =
-        document.createElement(
-          "div"
-        );
-
-
-      message.className =
-        "message";
-
-
-      const messageContent =
-        document.createElement(
-          "div"
-        );
-
-
-      messageContent.className =
-        "message-content";
-
-
-      message.appendChild(
-        messageContent
-      );
-
-
-      const tools =
-        document.createElement(
-          "div"
-        );
-
-
-      tools.className =
-        "message-tools";
-
-
-      const copyBtn =
-        createToolButton(
-          "Copy",
-          `
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-
-              <rect
-                x="9"
-                y="9"
-                width="11"
-                height="11"
-                rx="2"
-              />
-
-              <path
-                d="M5 15H4a2 2 0 0 1-2-2V4
-                   a2 2 0 0 1 2-2h9
-                   a2 2 0 0 1 2 2v1"
-              />
-
-            </svg>
-          `
-        );
-
-
-      copyBtn.addEventListener(
-        "click",
-        async () => {
-
-          try {
-
-            await navigator
-              .clipboard
-              .writeText(
-                content
-              );
-
-
-            showToast(
-              "Response copied"
-            );
-
-          } catch {
-
-            showToast(
-              "Unable to copy response"
-            );
-          }
-        }
-      );
-
-
-      tools.appendChild(
-        copyBtn
-      );
-
-
-      message.appendChild(
-        tools
-      );
-
-
-      row.appendChild(
-        message
-      );
-
-
-      messagesEl.appendChild(
-        row
-      );
-
-
-      if (content) {
-
-        updateAIMessage(
-          row,
-          content
-        );
-      }
-
-
-      scrollToBottom();
-
-
-      return row;
-    }
-
-
-    function createToolButton(
-      label,
-      icon
-    ) {
-
-      const button =
-        document.createElement(
-          "button"
-        );
-
-
-      button.className =
-        "tool-btn";
-
-
-      button.title =
-        label;
-
-
-      button.innerHTML =
-        icon +
-        `<span>${label}</span>`;
-
-
-      return button;
-    }
-
-
-    function updateAIMessage(
-      row,
-      content
-    ) {
-
-      const contentEl =
-        row.querySelector(
-          ".message-content"
-        );
-
-
-      contentEl.innerHTML =
-        renderMarkdown(
-          content
-        );
-
-
-      enhanceCodeBlocks(
-        contentEl
-      );
-
-
-      scrollToBottom();
-    }
-
-
-    /* =========================================================
-       TYPING INDICATOR
-    ========================================================= */
-
-    function addTypingMessage() {
-
-      const row =
-        document.createElement(
-          "div"
-        );
-
-
-      row.className =
-        "message-row ai";
-
-
-      row.id =
-        "typing-message";
-
-
-      const message =
-        document.createElement(
-          "div"
-        );
-
-
-      message.className =
-        "message";
-
-
-      message.innerHTML = `
-        <div class="typing">
-
-          <span
-            class="typing-dot"
-          ></span>
-
-          <span
-            class="typing-dot"
-          ></span>
-
-          <span
-            class="typing-dot"
-          ></span>
-
-        </div>
-      `;
-
-
-      row.appendChild(
-        message
-      );
-
-
-      messagesEl.appendChild(
-        row
-      );
-
-
-      scrollToBottom();
-
-
-      return row;
-    }
-
-
-    /* =========================================================
-       WELCOME
-    ========================================================= */
-
-    function hideWelcome() {
-
-      if (welcomeEl) {
-
-        welcomeEl.style.display =
-          "none";
-      }
-    }
-
-
-    function showWelcome() {
-
-      if (welcomeEl) {
-
-        welcomeEl.style.display =
-          "";
-      }
-    }
-
-
-    /* =========================================================
-       SCROLL
-    ========================================================= */
-
-    function scrollToBottom() {
-
-      requestAnimationFrame(
-        () => {
-
-          messagesEl.scrollTop =
-            messagesEl.scrollHeight;
 
         }
-      );
-    }
 
-
-    /* =========================================================
-       INPUT
-    ========================================================= */
-
-    function resizeInput() {
-
-      userInput.style.height =
-        "auto";
-
-
-      userInput.style.height =
-        Math.min(
-          userInput.scrollHeight,
-          180
-        ) + "px";
-    }
-
-
-    userInput.addEventListener(
-      "input",
-      resizeInput
+      }
     );
 
 
-    /* =========================================================
-       SEND BUTTON STATE
-    ========================================================= */
+    header.appendChild(
+      languageLabel
+    );
 
-    function updateSendButton() {
-
-      if (isGenerating) {
-
-        sendBtn.classList.add(
-          "stop"
-        );
+    header.appendChild(
+      copyButton
+    );
 
 
-        sendBtn.title =
-          "Stop generation";
+    pre.parentNode.insertBefore(
+      wrapper,
+      pre
+    );
 
 
-        sendBtn.setAttribute(
-          "aria-label",
-          "Stop generation"
-        );
+    wrapper.appendChild(
+      header
+    );
+
+    wrapper.appendChild(
+      pre
+    );
+
+  });
+}
 
 
-        sendIcon.innerHTML = `
+/* =========================================================
+   USER MESSAGE
+========================================================= */
+
+function addUserMessage(
+  content
+) {
+
+  hideWelcome();
+
+
+  const row =
+    document.createElement(
+      "div"
+    );
+
+  row.className =
+    "message-row user";
+
+
+  const message =
+    document.createElement(
+      "div"
+    );
+
+  message.className =
+    "message";
+
+
+  const messageContent =
+    document.createElement(
+      "div"
+    );
+
+  messageContent.className =
+    "message-content";
+
+
+  messageContent.textContent =
+    content;
+
+
+  message.appendChild(
+    messageContent
+  );
+
+
+  row.appendChild(
+    message
+  );
+
+
+  messagesEl.appendChild(
+    row
+  );
+
+
+  scrollToBottom();
+
+
+  return row;
+}
+
+
+/* =========================================================
+   AI MESSAGE
+========================================================= */
+
+function addAIMessage(
+  content = ""
+) {
+
+  hideWelcome();
+
+
+  const row =
+    document.createElement(
+      "div"
+    );
+
+  row.className =
+    "message-row ai";
+
+
+  const message =
+    document.createElement(
+      "div"
+    );
+
+  message.className =
+    "message";
+
+
+  const messageContent =
+    document.createElement(
+      "div"
+    );
+
+  messageContent.className =
+    "message-content";
+
+
+  message.appendChild(
+    messageContent
+  );
+
+
+  const tools =
+    document.createElement(
+      "div"
+    );
+
+  tools.className =
+    "message-tools";
+
+
+  const copyBtn =
+    createToolButton(
+      "Copy",
+      `
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
           <rect
-            x="7"
-            y="7"
-            width="10"
-            height="10"
+            x="9"
+            y="9"
+            width="11"
+            height="11"
             rx="2"
           />
-        `;
 
-
-        return;
-      }
-
-
-      sendBtn.classList.remove(
-        "stop"
-      );
-
-
-      sendBtn.title =
-        "Send message";
-
-
-      sendBtn.setAttribute(
-        "aria-label",
-        "Send message"
-      );
-
-
-      sendIcon.innerHTML = `
-        <path
-          d="M22 2L11 13"
-        />
-
-        <path
-          d="M22 2l-7 20-4-9-9-4 20-7z"
-        />
-      `;
-
-
-      sendBtn.disabled =
-        !userInput.value.trim();
-    }
-
-
-    userInput.addEventListener(
-      "input",
-      updateSendButton
+          <path
+            d="
+              M5 15H4
+              a2 2 0 0 1-2-2V4
+              a2 2 0 0 1 2-2h9
+              a2 2 0 0 1 2 2v1
+            "
+          />
+        </svg>
+      `
     );
 
 
-    /* =========================================================
-       OPENROUTER API
-    ========================================================= */
+  copyBtn.addEventListener(
+    "click",
+    async () => {
 
-    async function sendMessage() {
+      const currentContent =
+        row.dataset.content || "";
 
-      if (isGenerating) {
 
-        stopGeneration();
+      try {
 
-        return;
+        await navigator.clipboard
+          .writeText(
+            currentContent
+          );
+
+
+        showToast(
+          "Response copied"
+        );
+
+      } catch {
+
+        showToast(
+          "Unable to copy response"
+        );
+
       }
 
+    }
+  );
 
-      const text =
-        userInput.value.trim();
+
+  tools.appendChild(
+    copyBtn
+  );
 
 
-      if (!text) {
-        return;
+  message.appendChild(
+    tools
+  );
+
+
+  row.appendChild(
+    message
+  );
+
+
+  messagesEl.appendChild(
+    row
+  );
+
+
+  if (content) {
+
+    updateAIMessage(
+      row,
+      content
+    );
+
+  }
+
+
+  scrollToBottom();
+
+
+  return row;
+}
+
+
+/* =========================================================
+   TOOL BUTTON
+========================================================= */
+
+function createToolButton(
+  label,
+  icon
+) {
+
+  const button =
+    document.createElement(
+      "button"
+    );
+
+
+  button.type =
+    "button";
+
+  button.className =
+    "tool-btn";
+
+  button.title =
+    label;
+
+
+  button.innerHTML =
+    icon +
+    `<span>${label}</span>`;
+
+
+  return button;
+}
+
+
+/* =========================================================
+   UPDATE AI MESSAGE
+========================================================= */
+
+function updateAIMessage(
+  row,
+  content
+) {
+
+  row.dataset.content =
+    content;
+
+
+  const contentEl =
+    row.querySelector(
+      ".message-content"
+    );
+
+
+  contentEl.innerHTML =
+    renderMarkdown(
+      content
+    );
+
+
+  enhanceCodeBlocks(
+    contentEl
+  );
+
+
+  scrollToBottom();
+}
+
+
+/* =========================================================
+   TYPING
+========================================================= */
+
+function addTypingMessage() {
+
+  const row =
+    document.createElement(
+      "div"
+    );
+
+  row.className =
+    "message-row ai";
+
+  row.id =
+    "typing-message";
+
+
+  const message =
+    document.createElement(
+      "div"
+    );
+
+  message.className =
+    "message";
+
+
+  message.innerHTML = `
+    <div class="typing">
+
+      <span class="typing-dot"></span>
+      <span class="typing-dot"></span>
+      <span class="typing-dot"></span>
+
+    </div>
+  `;
+
+
+  row.appendChild(
+    message
+  );
+
+
+  messagesEl.appendChild(
+    row
+  );
+
+
+  scrollToBottom();
+
+
+  return row;
+}
+
+
+/* =========================================================
+   WELCOME
+========================================================= */
+
+function hideWelcome() {
+
+  if (welcomeEl) {
+
+    welcomeEl.style.display =
+      "none";
+
+  }
+}
+
+
+function showWelcome() {
+
+  if (welcomeEl) {
+
+    welcomeEl.style.display =
+      "";
+
+  }
+}
+
+
+/* =========================================================
+   SCROLL
+========================================================= */
+
+function scrollToBottom() {
+
+  requestAnimationFrame(() => {
+
+    messagesEl.scrollTop =
+      messagesEl.scrollHeight;
+
+  });
+}
+
+
+/* =========================================================
+   INPUT
+========================================================= */
+
+function resizeInput() {
+
+  userInput.style.height =
+    "auto";
+
+
+  userInput.style.height =
+    Math.min(
+      userInput.scrollHeight,
+      180
+    ) + "px";
+}
+
+
+userInput.addEventListener(
+  "input",
+  resizeInput
+);
+
+
+/* =========================================================
+   SEND BUTTON
+========================================================= */
+
+function updateSendButton() {
+
+  if (isGenerating) {
+
+    sendBtn.disabled =
+      false;
+
+    sendBtn.classList.add(
+      "stop"
+    );
+
+
+    sendBtn.title =
+      "Stop generation";
+
+    sendBtn.setAttribute(
+      "aria-label",
+      "Stop generation"
+    );
+
+
+    sendIcon.innerHTML = `
+      <rect
+        x="7"
+        y="7"
+        width="10"
+        height="10"
+        rx="2"
+      />
+    `;
+
+
+    return;
+  }
+
+
+  sendBtn.classList.remove(
+    "stop"
+  );
+
+
+  sendBtn.title =
+    "Send message";
+
+  sendBtn.setAttribute(
+    "aria-label",
+    "Send message"
+  );
+
+
+  sendIcon.innerHTML = `
+    <path d="M22 2L11 13"/>
+
+    <path
+      d="
+        M22 2
+        l-7 20
+        -4-9
+        -9-4
+        20-7z
+      "
+    />
+  `;
+
+
+  sendBtn.disabled =
+    !userInput.value.trim();
+}
+
+
+userInput.addEventListener(
+  "input",
+  updateSendButton
+);
+
+
+/* =========================================================
+   STREAMING RESPONSE
+========================================================= */
+
+/*
+ * OpenRouter streaming responses use SSE.
+ *
+ * The Worker should forward the stream directly.
+ *
+ * Each event looks approximately like:
+ *
+ * data: {"choices":[{"delta":{"content":"Hello"}}]}
+ *
+ * The stream ends with:
+ *
+ * data: [DONE]
+ */
+
+
+async function readStreamingResponse(
+  response,
+  aiRow
+) {
+
+  if (!response.body) {
+
+    throw new Error(
+      "Streaming is not supported by this response."
+    );
+
+  }
+
+
+  const reader =
+    response.body.getReader();
+
+
+  const decoder =
+    new TextDecoder(
+      "utf-8"
+    );
+
+
+  let buffer = "";
+
+  let fullContent = "";
+
+
+  while (true) {
+
+    const {
+      value,
+      done
+    } =
+      await reader.read();
+
+
+    if (done) {
+      break;
+    }
+
+
+    buffer +=
+      decoder.decode(
+        value,
+        {
+          stream: true
+        }
+      );
+
+
+    const lines =
+      buffer.split("\n");
+
+
+    /*
+     * Keep the final incomplete line
+     * for the next chunk.
+     */
+
+    buffer =
+      lines.pop() || "";
+
+
+    for (
+      const rawLine of lines
+    ) {
+
+      const line =
+        rawLine.trim();
+
+
+      if (!line) {
+        continue;
       }
 
 
       if (
-        API_KEY ===
-        "YOUR_OPENROUTER_API_KEY"
+        !line.startsWith(
+          "data:"
+        )
       ) {
-
-        showToast(
-          "Add your OpenRouter API key first."
-        );
-
-        return;
+        continue;
       }
 
 
-      userInput.value =
-        "";
+      const data =
+        line.slice(5).trim();
 
 
-      resizeInput();
+      if (
+        data === "[DONE]"
+      ) {
+
+        continue;
+      }
 
 
-      addUserMessage(
-        text
-      );
-
-
-      conversation.push({
-        role: "user",
-        content: text
-      });
-
-
-      saveConversation();
-
-
-      isGenerating =
-        true;
-
-
-      controller =
-        new AbortController();
-
-
-      updateSendButton();
-
-
-      const typing =
-        addTypingMessage();
+      let parsed;
 
 
       try {
 
-        const response =
-          await fetch(
-            API_URL,
-            {
+        parsed =
+          JSON.parse(data);
 
-              method:
-                "POST",
+      } catch {
 
+        /*
+         * SSE chunks should normally contain
+         * complete JSON objects, but if a
+         * malformed event arrives we simply
+         * ignore it.
+         */
 
-              headers: {
-
-                "Content-Type":
-                  "application/json",
-
-                "Authorization":
-                  `Bearer ${API_KEY}`,
-
-                /*
-                 * These headers are optional.
-                 *
-                 * They help OpenRouter identify
-                 * your application.
-                 */
-                "HTTP-Referer":
-                  window.location.href,
-
-                "X-Title":
-                  "Free AI"
-
-              },
+        continue;
+      }
 
 
-              signal:
-                controller.signal,
+      const delta =
+        parsed
+          ?.choices?.[0]
+          ?.delta
+          ?.content;
 
 
-              body:
-                JSON.stringify({
-
-                  model:
-                    MODEL,
-
-
-                  messages: [
-
-                    {
-                      role:
-                        "system",
-
-                      content:
-                        SYSTEM_PROMPT
-                    },
-
-                    ...conversation
-
-                  ],
+      if (
+        typeof delta !==
+        "string"
+      ) {
+        continue;
+      }
 
 
-                  temperature:
-                    0.7,
+      fullContent +=
+        delta;
 
 
-                  max_tokens:
-                    4096
+      updateAIMessage(
+        aiRow,
+        fullContent
+      );
 
-                })
+    }
 
-            }
-          );
-
-
-        /* =====================================================
-           ERROR HANDLING
-        ================================================== */
-
-        if (!response.ok) {
-
-          let errorMessage =
-            `API request failed (${response.status})`;
+  }
 
 
-          try {
-
-            const errorData =
-              await response.json();
+  return fullContent;
+}
 
 
-            if (
-              errorData?.error?.message
-            ) {
+/* =========================================================
+   SEND MESSAGE
+========================================================= */
 
-              errorMessage =
-                errorData.error.message;
-            }
+async function sendMessage() {
 
-          } catch {
+  if (isGenerating) {
 
-            // Ignore malformed error response.
-          }
+    stopGeneration();
+
+    return;
+  }
 
 
-          throw new Error(
-            errorMessage
-          );
+  const text =
+    userInput.value.trim();
+
+
+  if (!text) {
+    return;
+  }
+
+
+  /*
+   * Make sure the developer replaced
+   * the Worker URL.
+   */
+
+  if (
+    API_URL.includes(
+      "YOUR-WORKER"
+    )
+  ) {
+
+    showToast(
+      "Set your Cloudflare Worker URL first."
+    );
+
+    return;
+  }
+
+
+  userInput.value =
+    "";
+
+  resizeInput();
+
+
+  addUserMessage(
+    text
+  );
+
+
+  conversation.push({
+    role: "user",
+    content: text
+  });
+
+
+  saveConversation();
+
+
+  isGenerating =
+    true;
+
+
+  controller =
+    new AbortController();
+
+
+  updateSendButton();
+
+
+  const typing =
+    addTypingMessage();
+
+
+  try {
+
+    const response =
+      await fetch(
+        API_URL,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          signal:
+            controller.signal,
+
+          body:
+            JSON.stringify({
+
+              /*
+               * The Worker chooses
+               * openrouter/free.
+               */
+
+              messages: [
+                {
+                  role: "system",
+                  content:
+                    SYSTEM_PROMPT
+                },
+
+                ...conversation
+              ],
+
+              temperature:
+                0.7,
+
+              max_tokens:
+                4096,
+
+              /*
+               * This is the important
+               * streaming option.
+               */
+
+              stream:
+                true
+
+            })
         }
+      );
 
 
-        /* =====================================================
-           RESPONSE
-        ================================================== */
+    /*
+     * If OpenRouter / Worker returned
+     * an error, try to extract the
+     * useful message.
+     */
 
-        const data =
+    if (!response.ok) {
+
+      let errorMessage =
+        `Request failed (${response.status})`;
+
+
+      try {
+
+        const errorData =
           await response.json();
 
 
-        typing.remove();
-
-
-        const answer =
-          data
-            ?.choices?.[0]
-            ?.message?.content;
-
-
-        if (!answer) {
-
-          throw new Error(
-            "The AI returned an empty response."
-          );
-        }
-
-
-        addAIMessage(
-          answer
-        );
-
-
-        conversation.push({
-
-          role:
-            "assistant",
-
-          content:
-            answer
-
-        });
-
-
-        saveConversation();
-
-
-      } catch (error) {
-
-        typing.remove();
-
-
         if (
-          error.name ===
-          "AbortError"
+          errorData?.error?.message
         ) {
 
-          showToast(
-            "Generation stopped"
-          );
-
-          return;
-        }
-
-
-        console.error(
-          "OpenRouter error:",
-          error
-        );
-
-
-        addAIMessage(
-          `### Something went wrong
-
-${error.message ||
-  "Unable to connect to OpenRouter."}
-
-Please check your API key, model name, and internet connection, then try again.`
-        );
-
-
-      } finally {
-
-        isGenerating =
-          false;
-
-
-        controller =
-          null;
-
-
-        updateSendButton();
-
-
-        userInput.focus();
-      }
-    }
-
-
-    /* =========================================================
-       STOP GENERATION
-    ========================================================= */
-
-    function stopGeneration() {
-
-      if (controller) {
-
-        controller.abort();
-      }
-
-
-      isGenerating =
-        false;
-
-
-      controller =
-        null;
-
-
-      const typing =
-        document.getElementById(
-          "typing-message"
-        );
-
-
-      if (typing) {
-
-        typing.remove();
-      }
-
-
-      updateSendButton();
-
-
-      userInput.focus();
-    }
-
-
-    sendBtn.addEventListener(
-      "click",
-      sendMessage
-    );
-
-
-    /* =========================================================
-       CLEAR CONVERSATION
-    ========================================================= */
-
-    clearBtn.addEventListener(
-      "click",
-      () => {
-
-        if (isGenerating) {
-
-          stopGeneration();
-        }
-
-
-        conversation =
-          [];
-
-
-        localStorage.removeItem(
-          STORAGE_KEY
-        );
-
-
-        const rows =
-          messagesEl.querySelectorAll(
-            ".message-row"
-          );
-
-
-        rows.forEach(
-          row => row.remove()
-        );
-
-
-        showWelcome();
-
-
-        showToast(
-          "Conversation cleared"
-        );
-      }
-    );
-
-
-    /* =========================================================
-       LOCAL STORAGE
-    ========================================================= */
-
-    function saveConversation() {
-
-      try {
-
-        localStorage.setItem(
-          STORAGE_KEY,
-
-          JSON.stringify(
-            conversation
-          )
-        );
-
-      } catch (error) {
-
-        console.warn(
-          "Could not save conversation.",
-          error
-        );
-      }
-    }
-
-
-    function loadConversation() {
-
-      try {
-
-        const saved =
-          localStorage.getItem(
-            STORAGE_KEY
-          );
-
-
-        if (!saved) {
-          return;
-        }
-
-
-        const parsed =
-          JSON.parse(
-            saved
-          );
-
-
-        if (
-          !Array.isArray(
-            parsed
-          )
+          errorMessage =
+            errorData.error.message;
+
+        } else if (
+          typeof errorData?.error ===
+          "string"
         ) {
 
-          return;
+          errorMessage =
+            errorData.error;
+
         }
 
+      } catch {
 
-        conversation =
-          parsed;
+        /*
+         * Ignore invalid error JSON.
+         */
 
-
-        if (
-          conversation.length ===
-          0
-        ) {
-
-          return;
-        }
-
-
-        hideWelcome();
-
-
-        conversation.forEach(
-          message => {
-
-            if (
-              message.role ===
-              "user"
-            ) {
-
-              addUserMessage(
-                message.content
-              );
-            }
-
-
-            if (
-              message.role ===
-              "assistant"
-            ) {
-
-              addAIMessage(
-                message.content
-              );
-            }
-
-          }
-        );
-
-
-      } catch (error) {
-
-        console.warn(
-          "Could not restore conversation.",
-          error
-        );
-
-
-        conversation =
-          [];
       }
+
+
+      throw new Error(
+        errorMessage
+      );
     }
 
 
-    /* =========================================================
-       SUGGESTIONS
-    ========================================================= */
+    /*
+     * Remove the three-dot
+     * typing indicator.
+     */
 
-    document
-      .querySelectorAll(
-        ".suggestion"
-      )
-      .forEach(
-        button => {
-
-          button.addEventListener(
-            "click",
-            () => {
-
-              const prompt =
-                button.dataset.prompt ||
-                "";
+    typing.remove();
 
 
-              userInput.value =
-                prompt;
+    /*
+     * Create an empty AI message.
+     * Content will be filled in
+     * progressively as tokens arrive.
+     */
 
-
-              resizeInput();
-
-
-              updateSendButton();
-
-
-              userInput.focus();
-
-            }
-          );
-
-        }
+    const aiRow =
+      addAIMessage(
+        ""
       );
 
 
-    /* =========================================================
-       KEYBOARD
-    ========================================================= */
+    /*
+     * Read the OpenRouter SSE stream.
+     */
 
-    userInput.addEventListener(
-      "keydown",
-      event => {
-
-        /*
-         * Enter = send
-         * Shift + Enter = newline
-         */
-
-        if (
-          event.key === "Enter" &&
-          !event.shiftKey
-        ) {
-
-          event.preventDefault();
+    const answer =
+      await readStreamingResponse(
+        response,
+        aiRow
+      );
 
 
-          if (!isGenerating) {
+    if (!answer) {
 
-            sendMessage();
-          }
-        }
-      }
+      throw new Error(
+        "The AI returned an empty response."
+      );
+
+    }
+
+
+    /*
+     * Save the complete answer
+     * only after streaming finishes.
+     */
+
+    conversation.push({
+      role: "assistant",
+      content: answer
+    });
+
+
+    saveConversation();
+
+
+  } catch (error) {
+
+    typing.remove();
+
+
+    /*
+     * AbortError means the user
+     * intentionally stopped generation.
+     */
+
+    if (
+      error.name ===
+      "AbortError"
+    ) {
+
+      showToast(
+        "Generation stopped"
+      );
+
+      return;
+    }
+
+
+    console.error(
+      "AI error:",
+      error
     );
 
 
-    /* =========================================================
-       INITIALIZATION
-    ========================================================= */
+    addAIMessage(
+      `### Something went wrong
 
-    loadConversation();
+${error.message || "Unable to connect to the AI service."}
 
-    resizeInput();
+Please try again in a moment.`
+    );
+
+
+  } finally {
+
+    isGenerating =
+      false;
+
+    controller =
+      null;
+
 
     updateSendButton();
 
     userInput.focus();
 
-  </script>
+  }
+}
+
+
+/* =========================================================
+   STOP GENERATION
+========================================================= */
+
+function stopGeneration() {
+
+  if (controller) {
+
+    controller.abort();
+
+  }
+
+
+  isGenerating =
+    false;
+
+  controller =
+    null;
+
+
+  const typing =
+    document.getElementById(
+      "typing-message"
+    );
+
+
+  if (typing) {
+    typing.remove();
+  }
+
+
+  updateSendButton();
+
+  userInput.focus();
+}
+
+
+/* =========================================================
+   CLEAR CONVERSATION
+========================================================= */
+
+clearBtn.addEventListener(
+  "click",
+  () => {
+
+    if (isGenerating) {
+      stopGeneration();
+    }
+
+
+    conversation =
+      [];
+
+
+    localStorage.removeItem(
+      STORAGE_KEY
+    );
+
+
+    const rows =
+      messagesEl.querySelectorAll(
+        ".message-row"
+      );
+
+
+    rows.forEach(
+      row =>
+        row.remove()
+    );
+
+
+    showWelcome();
+
+
+    showToast(
+      "Conversation cleared"
+    );
+
+  }
+);
+
+
+/* =========================================================
+   LOCAL STORAGE
+========================================================= */
+
+function saveConversation() {
+
+  try {
+
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(
+        conversation
+      )
+    );
+
+  } catch (error) {
+
+    console.warn(
+      "Could not save conversation.",
+      error
+    );
+
+  }
+}
+
+
+function loadConversation() {
+
+  try {
+
+    const saved =
+      localStorage.getItem(
+        STORAGE_KEY
+      );
+
+
+    if (!saved) {
+      return;
+    }
+
+
+    const parsed =
+      JSON.parse(saved);
+
+
+    if (
+      !Array.isArray(parsed)
+    ) {
+
+      return;
+
+    }
+
+
+    conversation =
+      parsed;
+
+
+    if (
+      conversation.length === 0
+    ) {
+
+      return;
+
+    }
+
+
+    hideWelcome();
+
+
+    conversation.forEach(
+      message => {
+
+        if (
+          message.role ===
+          "user"
+        ) {
+
+          addUserMessage(
+            message.content
+          );
+
+        }
+
+
+        if (
+          message.role ===
+          "assistant"
+        ) {
+
+          addAIMessage(
+            message.content
+          );
+
+        }
+
+      }
+    );
+
+
+    scrollToBottom();
+
+
+  } catch (error) {
+
+    console.warn(
+      "Could not restore conversation.",
+      error
+    );
+
+
+    conversation =
+      [];
+
+  }
+}
+
+
+/* =========================================================
+   SUGGESTIONS
+========================================================= */
+
+document
+  .querySelectorAll(
+    ".suggestion"
+  )
+  .forEach(button => {
+
+    button.addEventListener(
+      "click",
+      () => {
+
+        const prompt =
+          button.dataset.prompt ||
+          "";
+
+
+        userInput.value =
+          prompt;
+
+
+        resizeInput();
+        updateSendButton();
+
+
+        userInput.focus();
+
+      }
+    );
+
+  });
+
+
+/* =========================================================
+   KEYBOARD
+========================================================= */
+
+userInput.addEventListener(
+  "keydown",
+  event => {
+
+    /*
+     * Enter = send
+     *
+     * Shift + Enter = newline
+     */
+
+    if (
+      event.key === "Enter" &&
+      !event.shiftKey
+    ) {
+
+      event.preventDefault();
+
+
+      if (!isGenerating) {
+
+        sendMessage();
+
+      }
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   SEND BUTTON
+========================================================= */
+
+sendBtn.addEventListener(
+  "click",
+  sendMessage
+);
+
+
+/* =========================================================
+   INITIALIZATION
+========================================================= */
+
+loadConversation();
+
+resizeInput();
+
+updateSendButton();
+
+userInput.focus();
+
+</script>
 
 </body>
 </html>
