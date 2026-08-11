@@ -22,23 +22,6 @@ const MAX_MESSAGE_LENGTH =
 const MAX_SEARCH_RESULTS =
   5;
 
-const JWT_ISSUER_SUFFIX =
-  "/auth/v1";
-
-const JWKS_CACHE_TTL =
-  10 * 60 * 1000;
-
-
-/* =========================================================
-   SIMPLE IN-MEMORY JWKS CACHE
-
-   Cloudflare may reuse a Worker isolate between requests.
-   This means we don't need to fetch the JWKS on every request.
-========================================================= */
-
-let jwksCache = null;
-let jwksFetchedAt = 0;
-
 
 /* =========================================================
    CORS
@@ -62,7 +45,7 @@ function corsHeaders() {
 
 
 /* =========================================================
-   RESPONSES
+   RESPONSE HELPERS
 ========================================================= */
 
 function jsonResponse(
@@ -99,166 +82,83 @@ function errorResponse(
 
 
 /* =========================================================
-   BASE64URL HELPERS
+   GET BEARER TOKEN
 ========================================================= */
 
-function base64UrlToUint8Array(
-  value
+function getBearerToken(
+  request
 ) {
-  const padding =
-    "=".repeat(
-      (4 - (value.length % 4)) % 4
+  const authorization =
+    request.headers.get(
+      "Authorization"
     );
-
-  const base64 =
-    value
-      .replace(/-/g, "+")
-      .replace(/_/g, "/") +
-    padding;
-
-  const binary =
-    atob(base64);
-
-  const bytes =
-    new Uint8Array(
-      binary.length
-    );
-
-  for (
-    let i = 0;
-    i < binary.length;
-    i++
-  ) {
-    bytes[i] =
-      binary.charCodeAt(i);
-  }
-
-  return bytes;
-}
-
-
-function decodeBase64UrlJson(
-  value
-) {
-  const bytes =
-    base64UrlToUint8Array(
-      value
-    );
-
-  const text =
-    new TextDecoder().decode(
-      bytes
-    );
-
-  return JSON.parse(text);
-}
-
-
-/* =========================================================
-   JWT DECODING
-========================================================= */
-
-function decodeJwt(
-  token
-) {
-  const parts =
-    token.split(".");
-
 
   if (
-    parts.length !== 3
+    !authorization ||
+    !authorization.startsWith(
+      "Bearer "
+    )
   ) {
-    throw new Error(
-      "Invalid JWT format."
-    );
+    return null;
   }
 
+  const token =
+    authorization
+      .slice(7)
+      .trim();
 
-  const header =
-    decodeBase64UrlJson(
-      parts[0]
-    );
-
-  const payload =
-    decodeBase64UrlJson(
-      parts[1]
-    );
-
-  const signature =
-    base64UrlToUint8Array(
-      parts[2]
-    );
-
-
-  return {
-    header,
-    payload,
-    signature,
-    encodedHeader:
-      parts[0],
-    encodedPayload:
-      parts[1]
-  };
+  return token || null;
 }
 
 
 /* =========================================================
-   JWT SIGNING INPUT
+   SUPABASE USER VERIFICATION
 ========================================================= */
 
-function getSigningInput(
-  token
+/*
+ * We intentionally verify the access token with
+ * Supabase Auth instead of implementing JWT
+ * cryptography ourselves.
+ *
+ * This is slower than local JWT verification,
+ * but it is reliable and avoids hand-written
+ * crypto/JWT verification code.
+ */
+
+async function getSupabaseUser(
+  request,
+  env
 ) {
-  const parts =
-    token.split(".");
+  const token =
+    getBearerToken(
+      request
+    );
 
-  return new TextEncoder().encode(
-    `${parts[0]}.${parts[1]}`
-  );
-}
-
-
-/* =========================================================
-   JWKS
-========================================================= */
-
-async function getJwks(
-  env,
-  forceRefresh = false
-) {
-
-  const now =
-    Date.now();
-
-
-  if (
-    !forceRefresh &&
-    jwksCache &&
-    (now - jwksFetchedAt) <
-      JWKS_CACHE_TTL
-  ) {
-
-    return jwksCache;
+  if (!token) {
+    return {
+      user: null,
+      error:
+        "Missing access token."
+    };
   }
 
 
   const response =
     await fetch(
-      `${env.SUPABASE_URL}/auth/v1/.well-known/jwks.json`,
+      `${env.SUPABASE_URL}/auth/v1/user`,
       {
-        method: "GET",
+        method:
+          "GET",
 
         headers: {
+          "apikey":
+            env.SUPABASE_ANON_KEY,
+
+          "Authorization":
+            `Bearer ${token}`,
+
           "Accept":
             "application/json"
-        },
-
-        cf: {
-          cacheTtl:
-            600,
-
-          cacheEverything:
-            true
         }
       }
     );
@@ -266,621 +166,65 @@ async function getJwks(
 
   if (!response.ok) {
 
-    throw new Error(
-      `Unable to fetch Supabase JWKS (${response.status}).`
-    );
+    let message =
+      "Invalid or expired session.";
+
+
+    try {
+
+      const data =
+        await response.json();
+
+
+      if (
+        data?.message
+      ) {
+        message =
+          data.message;
+      }
+
+      if (
+        data?.error_description
+      ) {
+        message =
+          data.error_description;
+      }
+
+    } catch {
+      // Ignore malformed error response.
+    }
+
+
+    return {
+      user: null,
+      error: message
+    };
   }
 
 
-  const jwks =
+  const user =
     await response.json();
 
 
-  if (
-    !jwks ||
-    !Array.isArray(
-      jwks.keys
-    )
-  ) {
+  if (!user?.id) {
 
-    throw new Error(
-      "Invalid Supabase JWKS response."
-    );
+    return {
+      user: null,
+      error:
+        "Invalid user."
+    };
   }
 
 
-  jwksCache =
-    jwks;
-
-  jwksFetchedAt =
-    now;
-
-
-  return jwks;
+  return {
+    user,
+    token
+  };
 }
 
 
 /* =========================================================
-   FIND SIGNING KEY
-========================================================= */
-
-function findJwk(
-  jwks,
-  kid,
-  alg
-) {
-
-  return (
-    jwks.keys.find(
-      key =>
-        key.kid === kid &&
-        key.alg === alg &&
-        key.key_ops?.includes("verify")
-    ) ||
-    jwks.keys.find(
-      key =>
-        key.kid === kid &&
-        key.alg === alg
-    ) ||
-    jwks.keys.find(
-      key =>
-        key.kid === kid
-    )
-  );
-}
-
-
-/* =========================================================
-   IMPORT PUBLIC KEY
-========================================================= */
-
-async function importVerificationKey(
-  jwk,
-  alg
-) {
-
-  if (
-    alg === "ES256"
-  ) {
-
-    return crypto.subtle.importKey(
-      "jwk",
-      jwk,
-      {
-        name:
-          "ECDSA",
-
-        namedCurve:
-          "P-256"
-      },
-      false,
-      ["verify"]
-    );
-  }
-
-
-  if (
-    alg === "RS256"
-  ) {
-
-    return crypto.subtle.importKey(
-      "jwk",
-      jwk,
-      {
-        name:
-          "RSASSA-PKCS1-v1_5",
-
-        hash:
-          "SHA-256"
-      },
-      false,
-      ["verify"]
-    );
-  }
-
-
-  throw new Error(
-    `Unsupported JWT algorithm: ${alg}`
-  );
-}
-
-
-/* =========================================================
-   JWT SIGNATURE VERIFICATION
-========================================================= */
-
-async function verifySignature(
-  token,
-  header,
-  jwk,
-  signature
-) {
-
-  const signingInput =
-    getSigningInput(
-      token
-    );
-
-
-  const key =
-    await importVerificationKey(
-      jwk,
-      header.alg
-    );
-
-
-  if (
-    header.alg ===
-    "ES256"
-  ) {
-
-    /*
-     * Supabase ES256 JWT signatures use
-     * the standard JWT R||S format.
-     *
-     * Web Crypto expects an ASN.1 DER
-     * signature for ECDSA verification
-     * in some runtimes, so convert it.
-     */
-
-    const derSignature =
-      joseSignatureToDer(
-        signature
-      );
-
-
-    return crypto.subtle.verify(
-      {
-        name:
-          "ECDSA",
-
-        hash:
-          "SHA-256"
-      },
-      key,
-      derSignature,
-      signingInput
-    );
-  }
-
-
-  if (
-    header.alg ===
-    "RS256"
-  ) {
-
-    return crypto.subtle.verify(
-      {
-        name:
-          "RSASSA-PKCS1-v1_5"
-      },
-      key,
-      signature,
-      signingInput
-    );
-  }
-
-
-  return false;
-}
-
-
-/* =========================================================
-   JWT ES256 SIGNATURE CONVERSION
-========================================================= */
-
-function joseSignatureToDer(
-  signature
-) {
-
-  if (
-    signature.length !== 64
-  ) {
-
-    throw new Error(
-      "Invalid ES256 signature length."
-    );
-  }
-
-
-  let r =
-    signature.slice(
-      0,
-      32
-    );
-
-  let s =
-    signature.slice(
-      32,
-      64
-    );
-
-
-  r =
-    trimInteger(
-      r
-    );
-
-  s =
-    trimInteger(
-      s
-    );
-
-
-  if (
-    r[0] & 0x80
-  ) {
-
-    const prefixed =
-      new Uint8Array(
-        r.length + 1
-      );
-
-    prefixed[0] =
-      0;
-
-    prefixed.set(
-      r,
-      1
-    );
-
-    r =
-      prefixed;
-  }
-
-
-  if (
-    s[0] & 0x80
-  ) {
-
-    const prefixed =
-      new Uint8Array(
-        s.length + 1
-      );
-
-    prefixed[0] =
-      0;
-
-    prefixed.set(
-      s,
-      1
-    );
-
-    s =
-      prefixed;
-  }
-
-
-  const sequenceLength =
-    2 +
-    r.length +
-    2 +
-    s.length;
-
-
-  const result =
-    new Uint8Array(
-      2 +
-      sequenceLength
-    );
-
-
-  let offset =
-    0;
-
-
-  result[offset++] =
-    0x30;
-
-  result[offset++] =
-    sequenceLength;
-
-
-  result[offset++] =
-    0x02;
-
-  result[offset++] =
-    r.length;
-
-  result.set(
-    r,
-    offset
-  );
-
-  offset +=
-    r.length;
-
-
-  result[offset++] =
-    0x02;
-
-  result[offset++] =
-    s.length;
-
-  result.set(
-    s,
-    offset
-  );
-
-
-  return result;
-}
-
-
-function trimInteger(
-  bytes
-) {
-
-  let index =
-    0;
-
-
-  while (
-    index <
-      bytes.length - 1 &&
-    bytes[index] === 0
-  ) {
-
-    index++;
-  }
-
-
-  return bytes.slice(
-    index
-  );
-}
-
-
-/* =========================================================
-   VERIFY SUPABASE JWT
-========================================================= */
-
-async function verifySupabaseJwt(
-  token,
-  env
-) {
-
-  const decoded =
-    decodeJwt(
-      token
-    );
-
-
-  const {
-    header,
-    payload,
-    signature
-  } =
-    decoded;
-
-
-  /*
-   * We currently expect modern asymmetric
-   * Supabase tokens.
-   */
-
-  if (
-    header.alg !== "ES256" &&
-    header.alg !== "RS256"
-  ) {
-
-    throw new Error(
-      `Unsupported Supabase JWT algorithm: ${header.alg}`
-    );
-  }
-
-
-  if (
-    header.typ !== "JWT"
-  ) {
-
-    throw new Error(
-      "Invalid JWT type."
-    );
-  }
-
-
-  if (
-    !header.kid
-  ) {
-
-    throw new Error(
-      "JWT is missing kid."
-    );
-  }
-
-
-  /* =======================================================
-     CHECK ISSUER
-  ======================================================= */
-
-  const expectedIssuer =
-    `${env.SUPABASE_URL}${JWT_ISSUER_SUFFIX}`;
-
-
-  if (
-    payload.iss !==
-    expectedIssuer
-  ) {
-
-    throw new Error(
-      "Invalid JWT issuer."
-    );
-  }
-
-
-  /* =======================================================
-     CHECK SUBJECT
-  ======================================================= */
-
-  if (
-    typeof payload.sub !==
-      "string" ||
-    payload.sub.length === 0
-  ) {
-
-    throw new Error(
-      "JWT is missing subject."
-    );
-  }
-
-
-  /* =======================================================
-     CHECK ROLE
-  ======================================================= */
-
-  if (
-    payload.role !==
-    "authenticated"
-  ) {
-
-    throw new Error(
-      "Invalid JWT role."
-    );
-  }
-
-
-  /* =======================================================
-     CHECK EXPIRATION
-  ======================================================= */
-
-  const now =
-    Math.floor(
-      Date.now() / 1000
-    );
-
-
-  if (
-    typeof payload.exp !==
-      "number"
-  ) {
-
-    throw new Error(
-      "JWT is missing expiration."
-    );
-  }
-
-
-  if (
-    payload.exp <=
-    now
-  ) {
-
-    throw new Error(
-      "JWT has expired."
-    );
-  }
-
-
-  /* =======================================================
-     FIND JWK
-  ======================================================= */
-
-  let jwks =
-    await getJwks(
-      env
-    );
-
-
-  let jwk =
-    findJwk(
-      jwks,
-      header.kid,
-      header.alg
-    );
-
-
-  /*
-   * If the key isn't in our cache,
-   * refresh JWKS once.
-   *
-   * This handles signing-key rotation.
-   */
-
-  if (!jwk) {
-
-    jwks =
-      await getJwks(
-        env,
-        true
-      );
-
-
-    jwk =
-      findJwk(
-        jwks,
-        header.kid,
-        header.alg
-      );
-  }
-
-
-  if (!jwk) {
-
-    throw new Error(
-      "JWT signing key not found."
-    );
-  }
-
-
-  /* =======================================================
-     VERIFY SIGNATURE
-  ======================================================= */
-
-  const valid =
-    await verifySignature(
-      token,
-      header,
-      jwk,
-      signature
-    );
-
-
-  if (!valid) {
-
-    throw new Error(
-      "Invalid JWT signature."
-    );
-  }
-
-
-  return payload;
-}
-
-
-/* =========================================================
-   GET BEARER TOKEN
-========================================================= */
-
-function getBearerToken(
-  request
-) {
-
-  const header =
-    request.headers.get(
-      "Authorization"
-    );
-
-
-  if (
-    !header ||
-    !header.startsWith(
-      "Bearer "
-    )
-  ) {
-
-    return null;
-  }
-
-
-  return header
-    .slice(7)
-    .trim();
-}
-
-
-/* =========================================================
-   TAVILY
+   TAVILY SEARCH
 ========================================================= */
 
 async function searchTavily(
@@ -902,7 +246,8 @@ async function searchTavily(
     await fetch(
       TAVILY_URL,
       {
-        method: "POST",
+        method:
+          "POST",
 
         headers: {
           "Content-Type":
@@ -914,7 +259,6 @@ async function searchTavily(
 
         body:
           JSON.stringify({
-
             query,
 
             search_depth:
@@ -934,7 +278,6 @@ async function searchTavily(
 
             include_images:
               false
-
           })
       }
     );
@@ -942,13 +285,13 @@ async function searchTavily(
 
   if (!response.ok) {
 
-    const text =
+    const errorText =
       await response.text();
 
 
     console.error(
       "Tavily error:",
-      text
+      errorText
     );
 
 
@@ -975,8 +318,7 @@ function buildSearchContext(
     !Array.isArray(
       searchData.results
     ) ||
-    searchData.results.length ===
-      0
+    searchData.results.length === 0
   ) {
 
     return "";
@@ -990,19 +332,31 @@ function buildSearchContext(
         index
       ) => {
 
+        const title =
+          result.title ||
+          `Source ${index + 1}`;
+
+        const url =
+          result.url ||
+          "";
+
+        const content =
+          result.content ||
+          "";
+
+
         return `
 SOURCE ${index + 1}
 
 Title:
-${result.title || `Source ${index + 1}`}
+${title}
 
 URL:
-${result.url || ""}
+${url}
 
 Content:
-${result.content || ""}
+${content}
         `.trim();
-
       }
     );
 
@@ -1141,6 +495,45 @@ function validateMessages(
 
 
 /* =========================================================
+   BUILD SYSTEM PROMPT
+========================================================= */
+
+function buildSystemPrompt(
+  searchContext
+) {
+
+  let prompt = `
+You are Free AI, a helpful and capable AI assistant.
+
+Give accurate, useful and direct answers.
+
+When appropriate:
+- Use clear headings.
+- Use bullet points and numbered lists.
+- Use Markdown.
+- Use fenced code blocks for code.
+- Explain technical concepts clearly.
+- Give practical examples.
+- Avoid unnecessary repetition.
+- Never claim to have performed an action you could not actually perform.
+  `.trim();
+
+
+  if (
+    searchContext
+  ) {
+
+    prompt +=
+      "\n\n" +
+      searchContext;
+  }
+
+
+  return prompt;
+}
+
+
+/* =========================================================
    WORKER
 ========================================================= */
 
@@ -1193,7 +586,7 @@ export default {
 
 
     /* =====================================================
-       ORIGIN
+       ORIGIN CHECK
     ===================================================== */
 
     if (
@@ -1211,7 +604,7 @@ export default {
 
 
     /* =====================================================
-       METHOD
+       METHOD CHECK
     ===================================================== */
 
     if (
@@ -1276,15 +669,17 @@ export default {
 
 
     /* =====================================================
-       ENV CHECK
+       ENVIRONMENT CHECK
     ===================================================== */
 
-    const missing = [];
+    const missing =
+      [];
 
 
     if (
       !env.SUPABASE_URL
     ) {
+
       missing.push(
         "SUPABASE_URL"
       );
@@ -1292,8 +687,19 @@ export default {
 
 
     if (
+      !env.SUPABASE_ANON_KEY
+    ) {
+
+      missing.push(
+        "SUPABASE_ANON_KEY"
+      );
+    }
+
+
+    if (
       !env.OPENROUTER_API_KEY
     ) {
+
       missing.push(
         "OPENROUTER_API_KEY"
       );
@@ -1318,60 +724,61 @@ export default {
 
 
     /* =====================================================
-       AUTHENTICATE LOCALLY
+       AUTHENTICATE USER
     ===================================================== */
 
-    const token =
-      getBearerToken(
-        request
-      );
-
-
-    if (!token) {
-
-      return errorResponse(
-        "Authentication required.",
-        401
-      );
-    }
-
-
-    let claims;
+    let auth;
 
 
     try {
 
-      claims =
-        await verifySupabaseJwt(
-          token,
+      auth =
+        await getSupabaseUser(
+          request,
           env
         );
 
     } catch (error) {
 
       console.error(
-        "JWT verification failed:",
+        "Supabase Auth request failed:",
         error
       );
 
 
       return errorResponse(
-        "Invalid or expired session.",
+        "Authentication service unavailable.",
+        502
+      );
+    }
+
+
+    if (
+      !auth.user
+    ) {
+
+      return errorResponse(
+        auth.error ||
+          "Authentication required.",
         401
       );
     }
 
 
     /*
-     * At this point:
+     * auth.user.id is the authenticated
+     * Supabase user's UUID.
      *
-     * claims.sub = authenticated
-     * Supabase user ID
+     * We don't trust a user_id supplied
+     * by the browser.
      */
+
+    const userId =
+      auth.user.id;
 
 
     /* =====================================================
-       PARSE BODY
+       PARSE JSON
     ===================================================== */
 
     let body;
@@ -1408,7 +815,8 @@ export default {
     } catch (error) {
 
       return errorResponse(
-        error.message,
+        error.message ||
+          "Invalid messages.",
         400
       );
     }
@@ -1489,35 +897,20 @@ export default {
 
 
     /* =====================================================
-       SYSTEM PROMPT
+       SYSTEM MESSAGE
     ===================================================== */
 
-    let systemPrompt = `
-You are Free AI, a helpful and capable AI assistant.
-
-Give accurate, useful and direct answers.
-
-When appropriate:
-- Use clear headings.
-- Use bullet points and numbered lists.
-- Use Markdown.
-- Use fenced code blocks for code.
-- Explain technical concepts clearly.
-- Give practical examples.
-- Avoid unnecessary repetition.
-- Never claim to have performed an action you could not actually perform.
-    `.trim();
+    const systemPrompt =
+      buildSystemPrompt(
+        searchContext
+      );
 
 
-    if (
-      searchContext
-    ) {
-
-      systemPrompt +=
-        "\n\n" +
-        searchContext;
-    }
-
+    /*
+     * We control the system prompt on
+     * the server instead of trusting one
+     * supplied by the browser.
+     */
 
     const finalMessages = [
 
@@ -1534,7 +927,6 @@ When appropriate:
           message.role !==
           "system"
       )
-
     ];
 
 
@@ -1593,7 +985,7 @@ When appropriate:
     } catch (error) {
 
       console.error(
-        "OpenRouter connection error:",
+        "OpenRouter connection failed:",
         error
       );
 
@@ -1618,7 +1010,7 @@ When appropriate:
 
 
       console.error(
-        "OpenRouter returned error:",
+        "OpenRouter returned an error:",
         errorText
       );
 
@@ -1630,7 +1022,6 @@ When appropriate:
             openRouterResponse.status,
 
           headers: {
-
             "Content-Type":
               "application/json",
 
@@ -1644,6 +1035,16 @@ When appropriate:
     /* =====================================================
        STREAM
     ===================================================== */
+
+    /*
+     * IMPORTANT:
+     *
+     * Do not call .text() or .json()
+     * on the successful OpenRouter response.
+     *
+     * Returning response.body directly
+     * preserves live SSE streaming.
+     */
 
     return new Response(
       openRouterResponse.body,
