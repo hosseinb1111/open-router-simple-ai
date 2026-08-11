@@ -13,11 +13,7 @@
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.11/dist/purify.min.js"></script>
 
   <style>
-    /* =====================================================
-       DESIGN TOKENS
-    ===================================================== */
     :root {
-      /* dark (default) */
       --bg: #1a1b1e;
       --sidebar: #17181b;
       --sidebar-hover: #212226;
@@ -124,14 +120,8 @@
       border-radius: var(--radius-sm);
     }
 
-    /* =====================================================
-       APP SHELL
-    ===================================================== */
     .app { width: 100%; height: 100vh; display: flex; background: var(--bg); }
 
-    /* =====================================================
-       SIDEBAR
-    ===================================================== */
     .sidebar {
       width: 264px;
       flex-shrink: 0;
@@ -301,9 +291,6 @@
       line-height: 1.5;
     }
 
-    /* =====================================================
-       USER PANEL
-    ===================================================== */
     .user-panel { flex-shrink: 0; padding: 9px; border-top: 1px solid var(--border); }
 
     .user-info { display: flex; align-items: center; gap: 9px; padding: 6px 5px; border-radius: var(--radius-sm); }
@@ -339,9 +326,6 @@
     .signout-btn:hover { background: var(--danger-soft); color: var(--danger); }
     .signout-btn svg { width: 13px; height: 13px; }
 
-    /* =====================================================
-       MAIN CHAT
-    ===================================================== */
     .chat { min-width: 0; flex: 1; display: flex; flex-direction: column; background: var(--surface); }
 
     .chat-header {
@@ -425,9 +409,6 @@
     .icon-btn:hover { background: var(--surface-hover); color: var(--text); }
     .icon-btn svg { width: 17px; height: 17px; }
 
-    /* =====================================================
-       MESSAGES
-    ===================================================== */
     .messages {
       flex: 1;
       min-height: 0;
@@ -533,40 +514,62 @@
       flex-shrink: 0;
     }
 
+    /* =====================================================
+       MESSAGE TOOLBAR — restyled
+       Pill-shaped icon buttons on a soft floating surface.
+       User bubbles now only get Copy + Retry (no Delete).
+    ===================================================== */
+
     .message.user .message-toolbar { justify-content: flex-end; }
 
     .message-toolbar {
       display: flex;
       align-items: center;
-      gap: 2px;
-      margin-top: 5px;
+      gap: 4px;
+      margin-top: 6px;
+      padding: 3px;
+      border-radius: 999px;
       opacity: 0;
-      transition: opacity var(--fast) var(--ease);
+      transform: translateY(-2px);
+      transition: opacity var(--fast) var(--ease), transform var(--fast) var(--ease);
     }
     .message-row:hover .message-toolbar,
-    .message-row:focus-within .message-toolbar { opacity: 1; }
+    .message-row:focus-within .message-toolbar {
+      opacity: 1;
+      transform: translateY(0);
+    }
 
     .message-action {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      min-height: 25px;
-      padding: 4px 6px;
-      border-radius: 5px;
-      background: transparent;
+      justify-content: center;
+      gap: 5px;
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      border-radius: 50%;
+      background: var(--elevated);
+      border: 1px solid var(--border);
       color: var(--text-muted);
       cursor: pointer;
       font-size: 10.5px;
-      transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
+      font-weight: 550;
+      transition: background var(--fast) var(--ease), color var(--fast) var(--ease),
+                  border-color var(--fast) var(--ease), transform var(--fast) var(--ease);
     }
-    .message-action:hover { background: var(--surface-hover); color: var(--text); }
-    .message-action.delete:hover { background: var(--danger-soft); color: var(--danger); }
-    .message-action.retry:hover { background: rgba(217, 164, 65, 0.13); color: var(--warning); }
-    .message-action svg { width: 12.5px; height: 12.5px; }
+    .message-action span { display: none; }
+    .message-action:hover {
+      background: var(--surface-hover);
+      color: var(--text);
+      border-color: var(--border-strong);
+      transform: translateY(-1px);
+    }
+    .message-action:active { transform: translateY(0); }
+    .message-action.delete:hover { background: var(--danger-soft); color: var(--danger); border-color: transparent; }
+    .message-action.retry:hover { background: rgba(217, 164, 65, 0.13); color: var(--warning); border-color: transparent; }
+    .message-action.copy:hover { background: var(--accent-soft); color: var(--accent-text); border-color: transparent; }
+    .message-action svg { width: 13.5px; height: 13.5px; }
 
-    /* =====================================================
-       MARKDOWN CONTENT
-    ===================================================== */
     .message-content p { margin-bottom: 12px; }
     .message-content p:last-child { margin-bottom: 0; }
 
@@ -635,9 +638,6 @@
       font-size: 0.87em;
     }
 
-    /* =====================================================
-       CODE BLOCKS
-    ===================================================== */
     .code-wrapper {
       margin: 14px 0;
       overflow: hidden;
@@ -687,9 +687,6 @@
     }
     [data-theme="light"] .message-content pre { color: #24292f; }
 
-    /* =====================================================
-       TYPING INDICATOR
-    ===================================================== */
     .typing { display: inline-flex; align-items: center; gap: 4px; padding: 6px 0; }
     .typing-dot {
       width: 5px; height: 5px; border-radius: 50%;
@@ -699,9 +696,6 @@
     .typing-dot:nth-child(2) { animation-delay: 0.15s; }
     .typing-dot:nth-child(3) { animation-delay: 0.30s; }
 
-    /* =====================================================
-       SOURCES
-    ===================================================== */
     .sources {
       display: flex; flex-wrap: wrap; gap: 6px;
       margin-top: 12px; padding-top: 10px;
@@ -718,9 +712,6 @@
     }
     .source-link:hover { background: var(--surface-hover); color: var(--text); }
 
-    /* =====================================================
-       SCROLL-TO-BOTTOM
-    ===================================================== */
     .scroll-bottom-btn {
       position: absolute;
       left: 50%;
@@ -744,9 +735,6 @@
     .scroll-bottom-btn.visible { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
     .scroll-bottom-btn svg { width: 12px; height: 12px; }
 
-    /* =====================================================
-       COMPOSER
-    ===================================================== */
     .composer-wrap {
       position: relative;
       flex-shrink: 0;
@@ -842,9 +830,6 @@
     }
     .search-status.active { color: var(--accent-text); }
 
-    /* =====================================================
-       TOAST
-    ===================================================== */
     .toast {
       position: fixed;
       left: 50%;
@@ -864,18 +849,12 @@
     }
     .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-    /* =====================================================
-       MOBILE SIDEBAR TOGGLE (hidden on desktop)
-    ===================================================== */
     .mobile-nav-btn { display: none; }
 
     .sidebar-backdrop {
       display: none;
     }
 
-    /* =====================================================
-       RESPONSIVE
-    ===================================================== */
     @media (max-width: 900px) {
       .sidebar { width: 232px; }
       .empty-state { margin-top: 6vh; }
@@ -922,13 +901,12 @@
       .mobile-nav-btn svg { width: 18px; height: 18px; }
 
       .message-row { padding-left: 14px; padding-right: 14px; }
-      .message-toolbar { opacity: 1; }
+      .message-toolbar { opacity: 1; transform: translateY(0); }
       .current-tab-model { display: none; }
     }
 
     @media (max-width: 480px) {
       .message.user .message-content { max-width: 90%; }
-      .message-action span { display: none; }
       .composer-wrap { padding: 7px 8px 10px; }
       .empty-state { margin-top: 4vh; }
     }
@@ -951,9 +929,6 @@
 
   <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
 
-  <!-- =====================================================
-       SIDEBAR
-  ====================================================== -->
   <aside id="sidebar" class="sidebar">
 
     <header class="sidebar-header">
@@ -1002,9 +977,6 @@
   </aside>
 
 
-  <!-- =====================================================
-       CHAT
-  ====================================================== -->
   <main class="chat">
 
     <header class="chat-header">
@@ -1049,9 +1021,6 @@
 
     <section id="messages" class="messages"></section>
 
-    <!-- ===================================================
-         COMPOSER
-    ==================================================== -->
     <div class="composer-wrap">
 
       <button id="scrollBottomBtn" class="scroll-bottom-btn" type="button" aria-label="Scroll to latest message">
@@ -1102,20 +1071,12 @@
 
 <script>
 
-  /* =========================================================
-     CONFIGURATION
-  ========================================================= */
-
   const SUPABASE_URL = "https://houpacapqrrvfqzzrlxs.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_YlFSX-js_1YUsqGxc4BeHQ_bhmlE5Le";
   const WORKER_URL = "https://api.ai09.workers.dev/";
   const LOGIN_PAGE = "./index.html";
   const CHAT_STORAGE_KEY = "free-ai-current-chat";
   const THEME_KEY = "free-ai-theme";
-
-  /* =========================================================
-     SUPABASE
-  ========================================================= */
 
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     auth: {
@@ -1124,10 +1085,6 @@
       detectSessionInUrl: true
     }
   });
-
-  /* =========================================================
-     DOM
-  ========================================================= */
 
   const chatsList = document.getElementById("chatsList");
   const chatSearchInput = document.getElementById("chatSearchInput");
@@ -1154,10 +1111,6 @@
   const mobileNavBtn = document.getElementById("mobileNavBtn");
   const scrollBottomBtn = document.getElementById("scrollBottomBtn");
 
-  /* =========================================================
-     STATE
-  ========================================================= */
-
   let currentUser = null;
   let currentSession = null;
   let currentChat = null;
@@ -1170,10 +1123,6 @@
   let chatSearchQuery = "";
   let userNearBottom = true;
 
-  /* =========================================================
-     CONFIG VALIDATION
-  ========================================================= */
-
   function isConfigured() {
     return (
       SUPABASE_URL && SUPABASE_URL.startsWith("https://") && !SUPABASE_URL.includes("YOUR_") &&
@@ -1182,20 +1131,12 @@
     );
   }
 
-  /* =========================================================
-     TOAST
-  ========================================================= */
-
   function showToast(message) {
     toastEl.textContent = message;
     toastEl.classList.add("show");
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => { toastEl.classList.remove("show"); }, 2500);
   }
-
-  /* =========================================================
-     THEME
-  ========================================================= */
 
   function loadTheme() {
     const saved = localStorage.getItem(THEME_KEY);
@@ -1225,10 +1166,6 @@
   loadTheme();
   updateThemeIcon();
 
-  /* =========================================================
-     MOBILE SIDEBAR
-  ========================================================= */
-
   function openSidebar() {
     sidebarEl.classList.add("open");
     sidebarBackdrop.classList.add("visible");
@@ -1244,10 +1181,6 @@
   });
 
   sidebarBackdrop.addEventListener("click", closeSidebar);
-
-  /* =========================================================
-     AUTH
-  ========================================================= */
 
   async function ensureFreshSession() {
     const { data, error } = await supabaseClient.auth.refreshSession();
@@ -1276,11 +1209,6 @@
     currentSession = data.session;
     currentUser = data.session.user;
 
-    /*
-     * Refresh immediately when opening
-     * the chat page so we start with
-     * a valid access token.
-     */
     const refreshed = await ensureFreshSession();
 
     return Boolean(refreshed);
@@ -1294,10 +1222,6 @@
       window.location.replace(LOGIN_PAGE);
     }
   });
-
-  /* =========================================================
-     USER UI
-  ========================================================= */
 
   function fallbackAvatar(name) {
     const letter = (name || "U").trim().charAt(0).toUpperCase() || "U";
@@ -1324,10 +1248,6 @@
     userAvatar.src = metadata.avatar_url || fallbackAvatar(name);
   }
 
-  /* =========================================================
-     CURRENT CHAT TAB
-  ========================================================= */
-
   function updateCurrentTab() {
     if (!currentChat) {
       currentTab.hidden = true;
@@ -1339,15 +1259,6 @@
     closeTabBtn.hidden = false;
     currentTabTitle.textContent = currentChat.title || "New chat";
   }
-
-  /*
-   * Close means "close the current tab",
-   * not "delete the conversation".
-   *
-   * The conversation stays safely stored
-   * in Supabase and can be reopened from
-   * the sidebar.
-   */
 
   closeTabBtn.addEventListener("click", () => {
     if (isGenerating) { stopGeneration(); }
@@ -1362,10 +1273,6 @@
     userInput.focus();
   });
 
-  /* =========================================================
-     CHAT TITLE
-  ========================================================= */
-
   function makeChatTitle(text) {
     const clean = text.replace(/\s+/g, " ").trim();
 
@@ -1374,10 +1281,6 @@
 
     return clean.slice(0, 39) + "...";
   }
-
-  /* =========================================================
-     DATE GROUPING (sidebar sections)
-  ========================================================= */
 
   function dateGroupLabel(isoString) {
     const then = new Date(isoString);
@@ -1394,10 +1297,6 @@
 
     return "Older";
   }
-
-  /* =========================================================
-     RENDER CHATS LIST (grouped + filterable)
-  ========================================================= */
 
   function renderChatsList() {
 
@@ -1445,9 +1344,6 @@
       const actions = document.createElement("div");
       actions.className = "chat-item-actions";
 
-      /*
-       * Close tab.
-       */
       const closeBtn = document.createElement("button");
       closeBtn.type = "button";
       closeBtn.className = "chat-item-action";
@@ -1467,9 +1363,6 @@
         }
       });
 
-      /*
-       * Delete chat.
-       */
       const deleteBtn = document.createElement("button");
       deleteBtn.type = "button";
       deleteBtn.className = "chat-item-action delete";
@@ -1510,10 +1403,6 @@
     renderChatsList();
   });
 
-  /* =========================================================
-     LOAD CHATS
-  ========================================================= */
-
   async function loadChats() {
 
     const { data, error } = await supabaseClient
@@ -1532,10 +1421,6 @@
 
     return allChats;
   }
-
-  /* =========================================================
-     CREATE CHAT
-  ========================================================= */
 
   async function createChat(title = "New chat") {
 
@@ -1565,10 +1450,6 @@
     return data;
   }
 
-  /* =========================================================
-     UPDATE CHAT TITLE
-  ========================================================= */
-
   async function updateChatTitle(title) {
 
     if (!currentChat) { return; }
@@ -1588,10 +1469,6 @@
     currentChat = data;
     updateCurrentTab();
   }
-
-  /* =========================================================
-     DELETE CHAT
-  ========================================================= */
 
   async function deleteChat(chatId) {
 
@@ -1621,10 +1498,6 @@
 
     await loadChats();
   }
-
-  /* =========================================================
-     OPEN CHAT
-  ========================================================= */
 
   async function openChat(chatId) {
 
@@ -1664,10 +1537,6 @@
     await loadChats();
   }
 
-  /* =========================================================
-     SAVE MESSAGE
-  ========================================================= */
-
   async function saveMessage(role, content) {
 
     if (!currentChat) { return null; }
@@ -1688,10 +1557,6 @@
     return data;
   }
 
-  /* =========================================================
-     UPDATE CHAT TIME
-  ========================================================= */
-
   async function touchChat() {
 
     if (!currentChat) { return; }
@@ -1708,10 +1573,6 @@
       updateCurrentTab();
     }
   }
-
-  /* =========================================================
-     DELETE MESSAGE
-  ========================================================= */
 
   async function deleteMessage(messageId) {
 
@@ -1741,20 +1602,12 @@
     showToast("Message deleted.");
   }
 
-  /* =========================================================
-     MARKDOWN
-  ========================================================= */
-
   marked.setOptions({ breaks: true, gfm: true });
 
   function renderMarkdown(text) {
     const html = marked.parse(text || "");
     return DOMPurify.sanitize(html, { USE_PROFILES: { html: true } });
   }
-
-  /* =========================================================
-     CODE BLOCKS
-  ========================================================= */
 
   function enhanceCodeBlocks(container) {
 
@@ -1803,10 +1656,6 @@
     });
   }
 
-  /* =========================================================
-     MESSAGE SVG ICONS
-  ========================================================= */
-
   const ICONS = {
 
     copy: `
@@ -1836,10 +1685,6 @@
     `
   };
 
-  /* =========================================================
-     MESSAGE TOOL BUTTON
-  ========================================================= */
-
   function createMessageAction(label, type, callback) {
 
     const button = document.createElement("button");
@@ -1857,10 +1702,6 @@
     return button;
   }
 
-  /* =========================================================
-     COPY MESSAGE
-  ========================================================= */
-
   async function copyMessage(content) {
     try {
       await navigator.clipboard.writeText(content);
@@ -1872,6 +1713,8 @@
 
   /* =========================================================
      RENDER MESSAGE
+     User bubbles: Copy + Retry only (no Delete).
+     Assistant bubbles: Copy + Retry + Delete.
   ========================================================= */
 
   function renderMessage(record, index) {
@@ -1910,7 +1753,10 @@
 
     toolbar.appendChild(createMessageAction("Copy", "copy", () => copyMessage(record.content)));
     toolbar.appendChild(createMessageAction("Retry", "retry", () => retryMessage(index)));
-    toolbar.appendChild(createMessageAction("Delete", "delete", () => deleteMessage(record.id)));
+
+    if (record.role !== "user") {
+      toolbar.appendChild(createMessageAction("Delete", "delete", () => deleteMessage(record.id)));
+    }
 
     message.appendChild(toolbar);
     container.appendChild(message);
@@ -1918,10 +1764,6 @@
 
     return row;
   }
-
-  /* =========================================================
-     EMPTY STATE / SUGGESTIONS
-  ========================================================= */
 
   const SUGGESTIONS = [
     { text: "Explain a programming concept to me", icon: `<path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/>` },
@@ -1970,10 +1812,6 @@
     return empty;
   }
 
-  /* =========================================================
-     RENDER ALL MESSAGES
-  ========================================================= */
-
   function renderMessages() {
 
     messagesEl.innerHTML = "";
@@ -1990,10 +1828,6 @@
     userNearBottom = true;
     scrollToBottom(true);
   }
-
-  /* =========================================================
-     SCROLL
-  ========================================================= */
 
   function isNearBottom() {
     const threshold = 120;
@@ -2019,10 +1853,6 @@
     scrollBottomBtn.classList.remove("visible");
   });
 
-  /* =========================================================
-     COMPOSER
-  ========================================================= */
-
   function resizeInput() {
     userInput.style.height = "auto";
     userInput.style.height = Math.min(userInput.scrollHeight, 200) + "px";
@@ -2032,10 +1862,6 @@
     resizeInput();
     updateSendButton();
   });
-
-  /* =========================================================
-     BUTTON STATE
-  ========================================================= */
 
   function updateSendButton() {
 
@@ -2061,10 +1887,6 @@
     `;
   }
 
-  /* =========================================================
-     WEB SEARCH
-  ========================================================= */
-
   webSearchBtn.addEventListener("click", () => {
     webSearchEnabled = !webSearchEnabled;
 
@@ -2074,10 +1896,6 @@
 
     searchStatus.textContent = webSearchEnabled ? "Web search on" : "Web search off";
   });
-
-  /* =========================================================
-     NEW CHAT
-  ========================================================= */
 
   newChatBtn.addEventListener("click", async () => {
     if (isGenerating) { stopGeneration(); }
@@ -2090,10 +1908,6 @@
     }
   });
 
-  /* =========================================================
-     RETRY MESSAGE
-  ========================================================= */
-
   async function retryMessage(index) {
 
     if (isGenerating) {
@@ -2105,17 +1919,6 @@
 
     const selected = messageRecords[index];
     if (!selected) { return; }
-
-    /*
-     * Find the user message that should
-     * be regenerated.
-     *
-     * Clicking Retry on an assistant
-     * message uses the previous user message.
-     *
-     * Clicking Retry on a user message
-     * uses that message itself.
-     */
 
     let userIndex = index;
 
@@ -2134,13 +1937,6 @@
       showToast("Could not find the user message to retry.");
       return;
     }
-
-    /*
-     * Remove all messages after the
-     * selected user message from the DB.
-     *
-     * The user's original message remains.
-     */
 
     const idsToDelete = messageRecords.slice(userIndex + 1).map(message => message.id);
 
@@ -2164,17 +1960,8 @@
 
     await touchChat();
 
-    /*
-     * Generate without inserting
-     * the user message a second time.
-     */
-
     await generateResponse();
   }
-
-  /* =========================================================
-     BUILD WORKER MESSAGES
-  ========================================================= */
 
   function buildWorkerMessages() {
 
@@ -2182,10 +1969,6 @@
       .filter(message => message.role === "user" || message.role === "assistant")
       .map(message => ({ role: message.role, content: message.content }));
   }
-
-  /* =========================================================
-     CREATE STREAMING MESSAGE
-  ========================================================= */
 
   function createStreamingMessage() {
 
@@ -2225,10 +2008,6 @@
 
     return { row, content };
   }
-
-  /* =========================================================
-     STREAM READER
-  ========================================================= */
 
   async function readStream(response, contentElement) {
 
@@ -2283,10 +2062,6 @@
     return answer;
   }
 
-  /* =========================================================
-     CALL WORKER
-  ========================================================= */
-
   async function callWorker(session) {
 
     return fetch(WORKER_URL, {
@@ -2306,10 +2081,6 @@
     });
   }
 
-  /* =========================================================
-     GENERATE RESPONSE
-  ========================================================= */
-
   async function generateResponse() {
 
     if (!currentChat) { return; }
@@ -2323,20 +2094,10 @@
 
     try {
 
-      /*
-       * First attempt:
-       * always use a refreshed session.
-       */
-
       let session = await ensureFreshSession();
       if (!session) { return; }
 
       let response = await callWorker(session);
-
-      /*
-       * If the Worker still returns 401,
-       * refresh again and retry exactly once.
-       */
 
       if (response.status === 401) {
         showToast("Refreshing session...");
@@ -2360,9 +2121,7 @@
             errorMessage = errorData.error.message;
           }
         } catch {
-          /*
-           * Ignore malformed error bodies.
-           */
+          /* Ignore malformed error bodies. */
         }
 
         throw new Error(errorMessage);
@@ -2373,12 +2132,6 @@
       if (!answer.trim()) {
         throw new Error("The AI returned an empty response.");
       }
-
-      /*
-       * Remove the temporary streamed row
-       * and insert the final database-backed
-       * assistant message.
-       */
 
       streamMessage.row.remove();
 
@@ -2410,10 +2163,6 @@
     }
   }
 
-  /* =========================================================
-     SEND MESSAGE
-  ========================================================= */
-
   async function sendMessage() {
 
     if (isGenerating) {
@@ -2434,19 +2183,10 @@
       return;
     }
 
-    /*
-     * Create the chat only when
-     * the first real message is sent.
-     */
-
     if (!currentChat) {
       currentChat = await createChat(makeChatTitle(text));
       if (!currentChat) { return; }
     }
-
-    /*
-     * Give the chat a useful title.
-     */
 
     if (currentChat.title === "New chat") {
       await updateChatTitle(makeChatTitle(text));
@@ -2454,10 +2194,6 @@
 
     userInput.value = "";
     resizeInput();
-
-    /*
-     * Add user message locally.
-     */
 
     const userMessage = await saveMessage("user", text);
 
@@ -2471,16 +2207,8 @@
     userNearBottom = true;
     renderMessages();
 
-    /*
-     * Generate response.
-     */
-
     await generateResponse();
   }
-
-  /* =========================================================
-     STOP
-  ========================================================= */
 
   function stopGeneration() {
 
@@ -2495,10 +2223,6 @@
     userInput.focus();
   }
 
-  /* =========================================================
-     EVENTS
-  ========================================================= */
-
   sendBtn.addEventListener("click", sendMessage);
 
   userInput.addEventListener("keydown", event => {
@@ -2507,10 +2231,6 @@
       if (!isGenerating) { sendMessage(); }
     }
   });
-
-  /* =========================================================
-     INITIALIZE
-  ========================================================= */
 
   async function initialize() {
 
