@@ -1003,13 +1003,6 @@
       </div>
 
       <div class="header-actions">
-        <button id="closeTabBtn" class="close-tab-btn" type="button" title="Close chat" aria-label="Close chat" hidden>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M6 6l12 12"/>
-            <path d="M18 6L6 18"/>
-          </svg>
-        </button>
-
         <button id="themeBtn" class="icon-btn" type="button" title="Toggle theme" aria-label="Toggle theme">
           <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="4"/>
@@ -1096,7 +1089,6 @@
   const currentTab = document.getElementById("currentTab");
   const currentTabTitle = document.getElementById("currentTabTitle");
   const currentTabSearch = document.getElementById("currentTabSearch");
-  const closeTabBtn = document.getElementById("closeTabBtn");
   const messagesEl = document.getElementById("messages");
   const userInput = document.getElementById("userInput");
   const sendBtn = document.getElementById("sendBtn");
@@ -1251,27 +1243,12 @@
   function updateCurrentTab() {
     if (!currentChat) {
       currentTab.hidden = true;
-      closeTabBtn.hidden = true;
       return;
     }
 
     currentTab.hidden = false;
-    closeTabBtn.hidden = false;
     currentTabTitle.textContent = currentChat.title || "New chat";
   }
-
-  closeTabBtn.addEventListener("click", () => {
-    if (isGenerating) { stopGeneration(); }
-
-    currentChat = null;
-    messageRecords = [];
-    localStorage.removeItem(CHAT_STORAGE_KEY);
-
-    updateCurrentTab();
-    renderMessages();
-    renderChatsList();
-    userInput.focus();
-  });
 
   function makeChatTitle(text) {
     const clean = text.replace(/\s+/g, " ").trim();
@@ -2113,8 +2090,7 @@
         throw new Error("The AI returned an empty response.");
       }
 
-      streamMessage.row.remove();
-
+      // Keep the completed answer visible while the database save finishes.
       await saveMessage("assistant", answer);
       await touchChat();
 
